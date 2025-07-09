@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import ws.prj.dto.request.UserCreationRequest;
 import ws.prj.dto.response.UserResponse;
 import ws.prj.entity.Role;
 import ws.prj.entity.User;
+import ws.prj.exception.AppException;
+import ws.prj.exception.ErrorCode;
 import ws.prj.mapper.UserMapper;
 import ws.prj.repository.RoleRepository;
 import ws.prj.repository.UserResponseDAO;
@@ -35,17 +39,10 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") //Spring sẽ tạo ra 1 proxy trước cái hàm. sẽ ktra role là admin thì mơi gọi đến method
     public List<UserResponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return userResponseDAO.findAll().stream().map(userMapper::toUserResponse).toList();
-    }
-
-
-
-    @Override
-    public User findByUsername(String username) {
-        return userResponseDAO.findByUsername(username);
     }
 
     @Override
@@ -73,5 +70,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByUsername(String username) {
         return userResponseDAO.existsByUsername(username);
+    }
+
+    @PostAuthorize("returnObject.username == authentication.name")// check sau khi method thuc thi xong
+    public UserResponse getUser(String id){
+        return userMapper.toUserResponse(userResponseDAO.findById(id).orElseThrow(() ->
+                new AppException(ErrorCode.USER_NOT_EXISTED)));
+    }
+
+    public UserResponse getMyInfo() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        User user = userResponseDAO.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userMapper.toUserResponse(user);
     }
 }

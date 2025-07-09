@@ -11,7 +11,6 @@ import java.util.Optional;
 @Service
 public interface UserService {
     List<UserResponse> findAll();
-    User findByUsername(String username);
     UserResponse create(UserCreationRequest userCreationRequest);
     void update(User user);
     void deleteByUsername(String username);

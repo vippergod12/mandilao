@@ -25,6 +25,7 @@ import ws.prj.entity.User;
 import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
 import ws.prj.repository.InvalidatedTokenRepository;
+import ws.prj.repository.UserResponseDAO;
 import ws.prj.service.impl.UserServiceImpl;
 
 import java.text.ParseException;
@@ -40,6 +41,7 @@ import java.util.StringJoiner;
 public class AuthenticationService {
     UserServiceImpl userService;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    private final UserResponseDAO userResponseDAO;
 
 //    @NonFinal // không inject vào constructor
 //    protected static final String SIGNER_KEY = "756dpVcRhjfE9GySMJmhN7A+zZ27tx5MoRqwX3CScB2j3fs8tfQgU+ft6+6rh3P6";
@@ -67,7 +69,8 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) throws JsonEOFException, ParseException {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         try{
-            var user = userService.findByUsername(request.getUsername());
+            var user = userResponseDAO.findByUsername(request.getUsername()).orElseThrow(() ->
+                    new AppException(ErrorCode.USER_NOT_EXISTED));
             boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
             if(!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -109,17 +112,11 @@ public class AuthenticationService {
         }
     }
 
-    private String buildScope(User user){
+    private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-        if(!CollectionUtils.isEmpty(user.getRoles()))
+        if (!CollectionUtils.isEmpty(user.getRoles()))
             user.getRoles().forEach(s -> stringJoiner.add(s.getName()));
 
         return stringJoiner.toString();
     }
-//
-//    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-//        var user = userService.findByUsername(request.getUsername());
-//    }
-
 }
