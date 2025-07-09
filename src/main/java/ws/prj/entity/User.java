@@ -29,5 +29,10 @@ public class User {
     String image;
 
     @ManyToMany
+//    @JoinTable(
+//            name = "Users_roles",
+//            joinColumns = @JoinColumn(name = "User_id"),
+//            inverseJoinColumns = @JoinColumn(name = "roles_name")
+//    )
     Set<Role> roles;
 }

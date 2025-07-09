@@ -16,4 +16,5 @@ public class UserCreationRequest {
      boolean enable;
      String image;
 
+
 }
