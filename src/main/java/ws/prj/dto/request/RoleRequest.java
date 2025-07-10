@@ -1,4 +1,4 @@
-package ws.prj.dto.response;
+package ws.prj.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,8 +10,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleResponse {
+public class RoleRequest {
     String name;
     String description;
-    Set<PermissionResponse> permissions;
+    Set<String> permissions;
 }
