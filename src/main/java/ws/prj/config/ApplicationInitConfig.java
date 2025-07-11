@@ -36,7 +36,7 @@ public class ApplicationInitConfig {
     @Bean
     ApplicationRunner applicationRunner(UserResponseDAO userResponseDAO, RoleRepository roleRepository, UserMapperImpl userMapperImpl){
         return args -> {
-            if(userResponseDAO.findByUsername(ADMIN_USER_NAME) == null){
+            if(userResponseDAO.findByUsername(ADMIN_USER_NAME).isEmpty()){
                 Role adminRole = roleRepository.save(Role.builder()
                         .name(PredefineRole.ADMIN_ROLE)
                         .description("Admin role")
