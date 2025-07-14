@@ -1,2 +1,4 @@
 CREATE DATABASE WEB_NHAHANGLAU;
 use WEB_NHAHANGLAU;
+
+select * from users

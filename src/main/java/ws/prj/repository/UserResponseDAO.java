@@ -11,6 +11,8 @@ public interface UserResponseDAO extends JpaRepository<User, String> {
 
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByEmail(String email);
+
     void deleteByUsername(String username);
 
     boolean existsByUsername(String username);

@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import ws.prj.contants.PredefineRole;
 import ws.prj.entity.Role;
 import ws.prj.entity.User;
-import ws.prj.mapper.UserMapperImpl;
+//import ws.prj.mapper.UserMapperImpl;
 import ws.prj.repository.RoleRepository;
 import ws.prj.repository.UserResponseDAO;
 import ws.prj.service.impl.UserServiceImpl;
@@ -34,7 +34,9 @@ public class ApplicationInitConfig {
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
     @Bean
-    ApplicationRunner applicationRunner(UserResponseDAO userResponseDAO, RoleRepository roleRepository, UserMapperImpl userMapperImpl){
+    ApplicationRunner applicationRunner(UserResponseDAO userResponseDAO, RoleRepository roleRepository
+//            , UserMapperImpl userMapperImpl
+    ){
         return args -> {
             if(userResponseDAO.findByUsername(ADMIN_USER_NAME) == null){
                 Role adminRole = roleRepository.save(Role.builder()

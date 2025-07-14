@@ -1,8 +1,7 @@
-package Web.shop.controller;
+package ws.prj.controller;
 
-import Web.shop.DAO.UserDao;
-import Web.shop.entity.User;
-import Web.shop.service.MailSerice;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,16 +9,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ws.prj.entity.User;
+import ws.prj.repository.UserResponseDAO;
+import ws.prj.service.MailSerice;
+
 
 import java.security.SecureRandom;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/api")
-public class api {
+public class forgotController {
 
     @Autowired
-    UserDao userDao;
+    UserResponseDAO userDao;
 
     @Autowired
     MailSerice mailSerice;
