@@ -10,12 +10,15 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -29,28 +32,42 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @NonFinal
-    @Value("${jwt.signerKey}")
-    private String signerKey;
+    private final String[] PUBLIC_ENDPOINTS = { "/users","/auth/login","/auth/introspect","/auth/logout"};
 
-    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect"};
+    private final CustomJWTDecoder customJwtDecoder;
+
+    public SecurityConfig(CustomJWTDecoder customJwtDecoder) {
+        this.customJwtDecoder = customJwtDecoder;
+    }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
-        http.csrf(config -> config.disable());
-        http.cors(config -> config.configurationSource(corsConfigurationSource()));
-        http.authorizeHttpRequests(config -> {
-            config.requestMatchers(HttpMethod.POST,PUBLIC_ENPOINTS).permitAll()
-                    .requestMatchers(HttpMethod.GET,"/users").hasAuthority("SCOPE_ADMIN")
-                    .anyRequest().authenticated();
-        });
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
-        http.oauth2ResourceServer(oauth2config ->
-                oauth2config.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())));
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                .permitAll()
+                .requestMatchers(HttpMethod.GET,"/users").hasAuthority("ROLE_ADMIN")
+                .anyRequest().authenticated());
+
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new
+                        JwtAuthenticationEntryPoint()));
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+
+        return httpSecurity.build();
 //        http.formLogin(config -> {
-//            config.loginPage("/login/form");
+//            config.loginPage("/auth/login");
 //            config.loginProcessingUrl("/login/check");
 //            config.defaultSuccessUrl("/login/success");
 //            config.failureUrl("/login/failure");
@@ -58,9 +75,9 @@ public class SecurityConfig {
 //            config.usernameParameter("username");
 //            config.passwordParameter("password");
 //        });
-        http.formLogin(form -> {
-
-        });
+//        http.formLogin(form -> {
+//
+//        });
 
 //        http.rememberMe(config -> {
 //            config.tokenValiditySeconds(3*24*60*60);
@@ -76,7 +93,6 @@ public class SecurityConfig {
 //            config.deleteCookies("JSESSIONID");
 //            config.deleteCookies("remember-me");
 //        });
-        return http.build();
     }
 
     @Bean
@@ -93,12 +109,4 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean
-    JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(),"HS512");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
-    }
 }

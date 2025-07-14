@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ws.prj.dto.request.ApiResponse;
 import ws.prj.dto.request.AuthenticationRequest;
 import ws.prj.dto.request.IntrospectRequest;
+import ws.prj.dto.request.LogoutRequest;
 import ws.prj.dto.response.AuthenticationResponse;
 import ws.prj.dto.response.IntrospectResponse;
 import ws.prj.service.AuthenticationService;
@@ -32,6 +33,13 @@ public class AuthenticationController {
         var result = authService.authenticate(request);
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws JsonEOFException, ParseException, JOSEException {
+        authService.logout(request);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 
