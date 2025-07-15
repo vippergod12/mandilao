@@ -15,20 +15,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import ws.prj.dto.request.AuthenticationRequest;
 import ws.prj.dto.request.IntrospectRequest;
 import ws.prj.dto.response.AuthenticationResponse;
 import ws.prj.dto.response.IntrospectResponse;
 import ws.prj.entity.InvalidatedToken;
+import ws.prj.entity.User;
 import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
 import ws.prj.repository.InvalidatedTokenRepository;
+import ws.prj.repository.UserResponseDAO;
 import ws.prj.service.impl.UserServiceImpl;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +41,7 @@ import java.util.Date;
 public class AuthenticationService {
     UserServiceImpl userService;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    private final UserResponseDAO userResponseDAO;
 
 //    @NonFinal // không inject vào constructor
 //    protected static final String SIGNER_KEY = "756dpVcRhjfE9GySMJmhN7A+zZ27tx5MoRqwX3CScB2j3fs8tfQgU+ft6+6rh3P6";
@@ -64,12 +69,13 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) throws JsonEOFException, ParseException {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         try{
-            var user = userService.findByUsername(request.getUsername());
+            var user = userResponseDAO.findByUsername(request.getUsername()).orElseThrow(() ->
+                    new AppException(ErrorCode.USER_NOT_EXISTED));
             boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
             if(!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-            var token = generateToken(request.getUsername());
+            var token = generateToken(user);
             return AuthenticationResponse.builder()
                     .token(token)
                     .authenticated(true)
@@ -80,16 +86,17 @@ public class AuthenticationService {
         }
     }
 
-    private String generateToken(String username){
+    private String generateToken(User user){
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         //các data trong body gọi là claimset
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username) // đại diện cho user đăng nhập
+                .subject(user.getUsername()) // đại diện cho user đăng nhập
                 .issuer("tien") // thường  là domain service
                 .issueTime(new Date()) //Lấy thời điểm hịiện tại
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli())) //Thời  hạn token
+                .claim("scope",buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -104,10 +111,12 @@ public class AuthenticationService {
             throw new RuntimeException(e);
         }
     }
-//
-//    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-//        var user = userService.findByUsername(request.getUsername());
-//    }
 
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles()))
+            user.getRoles().forEach(s -> stringJoiner.add(s.getName()));
+
+        return stringJoiner.toString();
+    }
 }

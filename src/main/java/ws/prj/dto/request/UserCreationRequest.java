@@ -3,6 +3,8 @@ package ws.prj.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,5 +17,7 @@ public class UserCreationRequest {
      String phone;
      boolean enable;
      String image;
+     LocalDate dob;
+     String fullName;
 
 }

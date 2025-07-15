@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Getter
@@ -27,7 +28,13 @@ public class User {
     String phone;
     boolean enable;
     String image;
-
+    LocalDate dob;
+    String fullName;
     @ManyToMany
+//    @JoinTable(
+//            name = "Users_roles",
+//            joinColumns = @JoinColumn(name = "User_id"),
+//            inverseJoinColumns = @JoinColumn(name = "roles_name")
+//    )
     Set<Role> roles;
 }

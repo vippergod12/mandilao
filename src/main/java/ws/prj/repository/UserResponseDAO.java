@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface UserResponseDAO extends JpaRepository<User, String> {
 
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     void deleteByUsername(String username);
 
