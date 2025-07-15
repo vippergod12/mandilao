@@ -3,15 +3,15 @@ package ws.prj.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Getter
-@Setter
+import java.util.UUID;
+
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResponse {
-    String id;
-    String username;
-    String email;
-    String phone;
+public class ImageResponse {
+    UUID id;
+    String url;
+    UUID id_product;
 }
