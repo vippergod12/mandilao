@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String signerKey;
 
-    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/api/forgotPass"};
+    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/api/forgotPass","/api/changePass/{userId}"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

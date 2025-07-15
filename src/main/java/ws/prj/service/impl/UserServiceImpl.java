@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ws.prj.contants.PredefineRole;
@@ -25,7 +24,6 @@ import ws.prj.service.UserService;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +68,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByUsername(String username) {
         return userResponseDAO.existsByUsername(username);
+    }
+
+    @Override
+    public User findById(String userId) {
+        return userResponseDAO.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
     @PostAuthorize("returnObject.username == authentication.name")// check sau khi method thuc thi xong
