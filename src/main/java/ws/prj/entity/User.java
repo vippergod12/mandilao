@@ -29,12 +29,12 @@ public class User {
     boolean enable;
     String image;
     LocalDate dob;
-    String fullName;
+    String fullname;
     @ManyToMany
-//    @JoinTable(
-//            name = "Users_roles",
-//            joinColumns = @JoinColumn(name = "User_id"),
-//            inverseJoinColumns = @JoinColumn(name = "roles_name")
-//    )
+    @JoinTable(
+            name = "Users_roles",
+            joinColumns = @JoinColumn(name = "User_id"),
+            inverseJoinColumns = @JoinColumn(name = "roles_name")
+    )
     Set<Role> roles;
 }

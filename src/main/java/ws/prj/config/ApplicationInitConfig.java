@@ -26,7 +26,7 @@ import java.util.HashSet;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
-     PasswordEncoder passwordEncoder;
+     final PasswordEncoder passwordEncoder;
 
     @NonFinal
     static final String ADMIN_USER_NAME = "admin";
