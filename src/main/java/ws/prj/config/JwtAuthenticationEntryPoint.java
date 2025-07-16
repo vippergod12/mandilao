@@ -1,17 +1,15 @@
-package com.devteria.identity.configuration;
+package ws.prj.config;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import ws.prj.dto.request.ApiResponse;
+import ws.prj.exception.ErrorCode;
 
-import com.devteria.identity.dto.request.ApiResponse;
-import com.devteria.identity.exception.ErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override

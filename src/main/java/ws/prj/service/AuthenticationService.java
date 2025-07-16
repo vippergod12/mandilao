@@ -18,8 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import ws.prj.dto.request.AuthenticationRequest;
 import ws.prj.dto.request.IntrospectRequest;
+import ws.prj.dto.request.LogoutRequest;
+import ws.prj.dto.request.RefreshRequest;
 import ws.prj.dto.response.AuthenticationResponse;
 import ws.prj.dto.response.IntrospectResponse;
+import ws.prj.entity.InvalidatedToken;
 import ws.prj.entity.User;
 import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
@@ -111,7 +114,39 @@ public class AuthenticationService {
         }
     }
 
+//    public AuthenticationResponse refreshToken(RefreshRequest request){
+//        // b1. check thời gian token
+//
+//    }
 
+    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        var verified = signedJWT.verify(verifier);
+
+        if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        return signedJWT;
+    }
+
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        var signToken = verifyToken(request.getToken());
+
+        String jit = signToken.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken =
+                InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+
+        invalidatedTokenRepository.save(invalidatedToken);
+    }
 
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
