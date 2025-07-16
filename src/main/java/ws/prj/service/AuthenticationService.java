@@ -20,12 +20,11 @@ import ws.prj.dto.request.AuthenticationRequest;
 import ws.prj.dto.request.IntrospectRequest;
 import ws.prj.dto.response.AuthenticationResponse;
 import ws.prj.dto.response.IntrospectResponse;
-import ws.prj.entity.InvalidatedToken;
 import ws.prj.entity.User;
 import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
 import ws.prj.repository.InvalidatedTokenRepository;
-import ws.prj.repository.UserResponseDAO;
+import ws.prj.repository.UserRepository;
 import ws.prj.service.impl.UserServiceImpl;
 
 import java.text.ParseException;
@@ -41,7 +40,7 @@ import java.util.StringJoiner;
 public class AuthenticationService {
     UserServiceImpl userService;
     InvalidatedTokenRepository invalidatedTokenRepository;
-    private final UserResponseDAO userResponseDAO;
+    private final UserRepository userRepository;
 
 //    @NonFinal // không inject vào constructor
 //    protected static final String SIGNER_KEY = "756dpVcRhjfE9GySMJmhN7A+zZ27tx5MoRqwX3CScB2j3fs8tfQgU+ft6+6rh3P6";
@@ -69,7 +68,7 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) throws JsonEOFException, ParseException {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         try{
-            var user = userResponseDAO.findByUsername(request.getUsername()).orElseThrow(() ->
+            var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() ->
                     new AppException(ErrorCode.USER_NOT_EXISTED));
             boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
@@ -111,6 +110,8 @@ public class AuthenticationService {
             throw new RuntimeException(e);
         }
     }
+
+
 
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");

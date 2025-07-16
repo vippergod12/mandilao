@@ -7,7 +7,7 @@ import ws.prj.entity.User;
 import java.util.Optional;
 
 @Repository
-public interface UserResponseDAO extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByUsername(String username);
 
