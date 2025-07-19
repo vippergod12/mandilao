@@ -6,7 +6,6 @@ import ws.prj.dto.response.UserResponse;
 import ws.prj.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -15,4 +14,5 @@ public interface UserService {
     void update(User user);
     void deleteByUsername(String username);
     boolean existsByUsername(String username);
+    User findById(String userId);
 }

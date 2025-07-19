@@ -76,6 +76,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByUsername(username);
     }
 
+    @Override
+    public User findById(String userId) {
+        return userResponseDAO.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
+
     @PostAuthorize("returnObject.username == authentication.name")// check sau khi method thuc thi xong
     public UserResponse getUser(String id){
         return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() ->
