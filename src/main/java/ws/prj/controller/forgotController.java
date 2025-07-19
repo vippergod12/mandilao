@@ -56,9 +56,9 @@ public class forgotController {
         return ResponseEntity.ok("Đã gửi OTP về email: " + email);
     }
 
-    @PostMapping("/conformotp")
+    @PostMapping("/confirmOtp")
     @ResponseBody
-    public ResponseEntity<String> conformotp(@RequestBody Map<String,String> body,HttpSession session){
+    public ResponseEntity<String> confirmOtp(@RequestBody Map<String,String> body,HttpSession session){
         String otpInput = body.get("otp");
 
         Object otpObj = session.getAttribute("otp");
@@ -77,6 +77,9 @@ public class forgotController {
             return ResponseEntity.badRequest().body("Mã OTP không đúng!");
         }
 
+        session.removeAttribute("otp");
+        session.removeAttribute("otp_created_time");
+        session.setAttribute("otp_verified", true);
         return ResponseEntity.ok("OTP hợp lệ! Vui lòng nhập mật khẩu mới.");
     }
 
