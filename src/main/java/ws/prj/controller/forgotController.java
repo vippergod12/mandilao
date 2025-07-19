@@ -1,7 +1,10 @@
 package ws.prj.controller;
 
 
+import jakarta.servlet.http.HttpSession;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -13,6 +16,7 @@ import ws.prj.service.MailSerice;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/api")
@@ -28,7 +32,7 @@ public class forgotController {
 
     @PostMapping("/forgotPass")
     @ResponseBody
-    public ResponseEntity<String> fotgotPass(@RequestBody Map<String,String> body){
+    public ResponseEntity<String> fotgotPass(@RequestBody Map<String,String> body, HttpSession session){
         String email = body.get("email");
 
         if(email == null || email.trim().isEmpty()){
@@ -40,20 +44,44 @@ public class forgotController {
             return ResponseEntity.badRequest().body("Email không tồn tại!");
         }
 
+        String otp = generateRandomPassword(6);
 
-        User user = optionalUser.get();
-        String newPass = generateRandomPassword(8);
-        user.setPassword(passwordEncoder.encode(newPass));
-        userDao.save(user);
+        session.setAttribute("otp", otp);
+        session.setAttribute("otp_created_time", System.currentTimeMillis());
 
-        String content = "Mật khẩu mới của bạn là: " + newPass + "\nVui lòng đăng nhập và đổi mật khẩu ngay!";
+
+        String content = "Đây là mã OTP của bạn: " + otp + "\nVui lòng OTP và đổi mật khẩu ngay!";
         mailSerice.sendMail(email, "Khôi phục mật khẩu", content);
 
-        return ResponseEntity.ok("Đã gửi mật khẩu mới về email: " + email);
+        return ResponseEntity.ok("Đã gửi OTP về email: " + email);
+    }
+
+    @PostMapping("/conformotp")
+    @ResponseBody
+    public ResponseEntity<String> conformotp(@RequestBody Map<String,String> body,HttpSession session){
+        String otpInput = body.get("otp");
+
+        Object otpObj = session.getAttribute("otp");
+        if (otpObj == null) {
+            return ResponseEntity.badRequest().body("OTP đã hết hạn hoặc không tồn tại !");
+        }
+
+        Long createdTime = (Long) session.getAttribute("otp_created_time");
+        if (createdTime == null || System.currentTimeMillis() - createdTime > 60_000) {
+            return ResponseEntity.badRequest().body("OTP đã hết hạn!");
+        }
+        String otpStored = otpObj.toString();
+
+
+        if(!otpStored.equals(otpInput)) {
+            return ResponseEntity.badRequest().body("Mã OTP không đúng!");
+        }
+
+        return ResponseEntity.ok("OTP hợp lệ! Vui lòng nhập mật khẩu mới.");
     }
 
     private String generateRandomPassword(int length){
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        String chars = "0123456789";
         SecureRandom random = new SecureRandom();
         StringBuilder builder = new StringBuilder();
 
