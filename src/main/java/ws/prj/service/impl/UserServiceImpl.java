@@ -1,5 +1,6 @@
 package ws.prj.service.impl;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,6 +12,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ws.prj.contants.PredefineRole;
+import ws.prj.dto.request.ChangePassRequest;
+import ws.prj.dto.request.ConfirmOtpRequest;
+import ws.prj.dto.request.ForgotPassRequest;
 import ws.prj.dto.request.UserCreationRequest;
 import ws.prj.dto.response.UserResponse;
 import ws.prj.entity.Role;
@@ -20,10 +24,13 @@ import ws.prj.exception.ErrorCode;
 import ws.prj.mapper.UserMapper;
 import ws.prj.repository.RoleRepository;
 import ws.prj.repository.UserRepository;
+import ws.prj.service.MailSerice;
 import ws.prj.service.UserService;
 
+import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +41,7 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
+    MailSerice mailSerice;
 
 
     @Override
@@ -76,10 +84,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByUsername(username);
     }
 
-    @Override
-    public User findById(String userId) {
-        return userResponseDAO.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-    }
 
     @PostAuthorize("returnObject.username == authentication.name")// check sau khi method thuc thi xong
     public UserResponse getUser(String id){
@@ -95,4 +99,76 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toUserResponse(user);
     }
+
+    @Override
+    public String forgotPass(ForgotPassRequest request, HttpSession session){
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        String otp = generateRandomPassword(6);
+        session.setAttribute("otp", otp);
+        session.setAttribute("otp_created_time", System.currentTimeMillis());
+        session.setAttribute("forgot_email", request.getEmail());
+
+        String content = "Đây là mã OTP của bạn: " + otp + "\nVui lòng OTP và đổi mật khẩu ngay!";
+        mailSerice.sendMail(request.getEmail(), "Khôi phục mật khẩu", content);
+        return "Đã gửi mã OTP tới email của bạn!";
+    }
+
+    @Override
+    public String confirmOtp (ConfirmOtpRequest request, HttpSession session){
+        Object otpObj = session.getAttribute("otp");
+        if (otpObj == null) {
+            return "OTP đã hết hạn hoặc không tồn tại !";
+        }
+
+        Long createdTime = (Long) session.getAttribute("otp_created_time");
+        if (createdTime == null || System.currentTimeMillis() - createdTime > 60_000) {
+            return "OTP đã hết hạn!";
+        }
+        String otpStored = otpObj.toString();
+
+        if(!otpStored.equals(request.getOtp())) {
+            return "Mã OTP không đúng!";
+        }
+
+        session.removeAttribute("otp");
+        session.removeAttribute("otp_created_time");
+        session.setAttribute("otp_verified", true);
+        return "OTP hợp lệ! Vui lòng nhập mật khẩu mới.";
+    }
+
+    @Override
+    public String changePass(ChangePassRequest request,String userId ) {
+        Optional<User> optional = userRepository.findById(userId);
+
+        if(optional.isEmpty()){
+            return "Lỗi: Không tìm thấy người dùng";
+        }
+
+        User user = optional.get();
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            return "Mật khẩu cũ không đúng !";
+        }
+
+        if (!request.getNewPass().equals(request.getConfirmPass())){
+            return "Mật khẩu mới và mật khẩu xác thực không trùng khớp !";
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPass()));
+        userRepository.save(user);
+        return "Đổi mật khẩu thành công" ;
+    }
+
+    private String generateRandomPassword(int length){
+        String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        SecureRandom random = new SecureRandom();
+        StringBuilder builder = new StringBuilder();
+
+        for(int i = 0; i < length; i++){
+            int index = random.nextInt(chars.length());
+            builder.append(chars.charAt(index));
+        }
+        return builder.toString();
+    }
+
 }

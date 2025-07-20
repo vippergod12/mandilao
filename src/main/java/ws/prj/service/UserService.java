@@ -1,6 +1,10 @@
 package ws.prj.service;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
+import ws.prj.dto.request.ChangePassRequest;
+import ws.prj.dto.request.ConfirmOtpRequest;
+import ws.prj.dto.request.ForgotPassRequest;
 import ws.prj.dto.request.UserCreationRequest;
 import ws.prj.dto.response.UserResponse;
 import ws.prj.entity.User;
@@ -14,5 +18,8 @@ public interface UserService {
     void update(User user);
     void deleteByUsername(String username);
     boolean existsByUsername(String username);
-    User findById(String userId);
+    String forgotPass(ForgotPassRequest request, HttpSession session);
+    String confirmOtp (ConfirmOtpRequest request, HttpSession session);
+    String changePass(ChangePassRequest body,String userId);
+
 }
