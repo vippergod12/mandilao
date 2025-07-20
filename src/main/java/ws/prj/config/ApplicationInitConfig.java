@@ -15,7 +15,8 @@ import ws.prj.entity.Role;
 import ws.prj.entity.User;
 import ws.prj.mapper.UserMapperImpl;
 import ws.prj.repository.RoleRepository;
-import ws.prj.repository.UserResponseDAO;
+
+import ws.prj.repository.UserRepository;
 import ws.prj.service.impl.UserServiceImpl;
 
 import java.util.HashSet;
