@@ -43,6 +43,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(config -> {
             config.requestMatchers(HttpMethod.POST,PUBLIC_ENPOINTS).permitAll()
                     .requestMatchers(HttpMethod.GET,"/users").hasAuthority("SCOPE_ADMIN")
+                    .requestMatchers(HttpMethod.GET,"/product").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/images").permitAll()
                     .anyRequest().authenticated();
         });
 

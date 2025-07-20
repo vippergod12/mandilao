@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ws.prj.dto.request.ApiResponse;
 import ws.prj.dto.request.ImageRequest;
 import ws.prj.dto.response.ImageResponse;
@@ -22,11 +23,29 @@ public class ImageController {
 
     ImageService imageService;
 
+    /**
+     * Upload ảnh cho sản phẩm.
+     * Gửi dạng: multipart/form-data
+     *
+     * Params:
+     * - file: ảnh
+     * - isMain: true/false
+     * - productId: UUID của product
+     */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<ImageResponse> create(@ModelAttribute ImageRequest request) {
+    public ApiResponse<ImageResponse> create(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam("isMain") boolean isMain,
+            @RequestParam("productId") UUID productId
+    ) {
+        ImageRequest request = ImageRequest.builder()
+                .file(file)
+                .isMain(isMain)
+                .build();
+
         return ApiResponse.<ImageResponse>builder()
                 .message("Image uploaded")
-                .result(imageService.create(request))
+                .result(imageService.create(request, productId))
                 .build();
     }
 

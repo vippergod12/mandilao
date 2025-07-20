@@ -13,5 +13,5 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ImageRequest {
     private MultipartFile file;
-    UUID id_product;
+    Boolean isMain;
 }
