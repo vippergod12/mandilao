@@ -3,6 +3,7 @@ package ws.prj.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -17,4 +18,5 @@ public class ProductResponse {
     double price;
     Integer quantity;
     UUID id_category;
+    List<ImageResponse> images;
 }

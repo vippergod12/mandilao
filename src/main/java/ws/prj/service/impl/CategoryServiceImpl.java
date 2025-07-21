@@ -3,6 +3,7 @@ package ws.prj.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ws.prj.dto.request.CategoryRequest;
 import ws.prj.dto.response.CategoryResponse;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
     CategoryRepositoryDAO repo;
+    @Qualifier("categoryMapperImpl")
     CategoryMapper mapper;
 
     @Override

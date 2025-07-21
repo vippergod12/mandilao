@@ -21,9 +21,10 @@ public class Image {
     String url;
 
     @ManyToOne
-    @JoinColumn(name = "id_product", nullable = false)
+    @JoinColumn(name = "id_product")
     Product product;
 
     // Optional: là ảnh chính không?
     boolean isMain;
+
 }

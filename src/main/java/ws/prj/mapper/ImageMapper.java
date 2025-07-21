@@ -11,10 +11,12 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ImageMapper {
-    @Mapping(source = "id_product", target = "product.id")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "url", ignore = true)
+    @Mapping(target = "isMain", ignore = true)
     Image toEntity(ImageRequest request);
 
-    @Mapping(source = "product.id", target = "id_product")
     ImageResponse toResponse(Image image);
 
     List<ImageResponse> toResponseList(List<Image> images);

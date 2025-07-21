@@ -1,20 +1,16 @@
 package ws.prj.config;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,7 +49,9 @@ public class SecurityConfig {
         http.cors(config -> config.configurationSource(corsConfigurationSource()));
         http.authorizeHttpRequests(config -> {
             config.requestMatchers(HttpMethod.POST,PUBLIC_ENPOINTS).permitAll()
-                    .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN") // nam trong phan authenticationService
+                    .requestMatchers(HttpMethod.GET,"/users").hasAuthority("SCOPE_ADMIN")
+                    .requestMatchers(HttpMethod.GET,"/product").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/images").permitAll()
                     .anyRequest().authenticated();
         });
 //        http.oauth2Login(login -> {
@@ -79,9 +77,7 @@ public class SecurityConfig {
 
         http.oauth2ResourceServer(oauth2config ->
                 oauth2config.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                                ));
+                        jwtConfigurer.decoder(jwtDecoder())));
 //        http.formLogin(config -> {
 //            config.loginPage("/login/form");
 //            config.loginProcessingUrl("/login/check");

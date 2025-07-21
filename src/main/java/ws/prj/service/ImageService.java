@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ImageService {
-    ImageResponse create(ImageRequest request);
+    ImageResponse create(ImageRequest request, UUID productId);
     List<ImageResponse> findByProductId(UUID productId);
     void delete(UUID id);
 }
