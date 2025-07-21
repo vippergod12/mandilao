@@ -13,5 +13,5 @@ import java.util.UUID;
 public class ImageResponse {
     UUID id;
     String url;
-    UUID id_product;
+    Boolean isMain;
 }

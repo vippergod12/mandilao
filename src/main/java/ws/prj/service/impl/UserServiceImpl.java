@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')") //Spring sẽ tạo ra 1 proxy trước cái hàm. sẽ ktra role là admin thì mơi gọi đến method
     public List<UserResponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
