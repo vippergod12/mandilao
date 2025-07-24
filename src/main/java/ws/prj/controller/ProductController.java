@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 import ws.prj.dto.request.ApiResponse;
 import ws.prj.dto.request.ProductRequest;
@@ -28,6 +29,10 @@ import java.util.UUID;
 public class ProductController {
     ProductService service;
     ProductRepositoryDAO productRepositoryDAO;
+    @Autowired
+    private ProductService productService;
+    @Autowired
+    private RestClient.Builder builder;
 
     @GetMapping
     public ApiResponse<List<ProductResponse>> getAll() {
@@ -46,7 +51,14 @@ public class ProductController {
                 .result(product)
                 .build();
     }
-
+    @GetMapping("/search")
+    public ApiResponse<List<ProductResponse>> search(@RequestParam String name) {
+        List<ProductResponse> productResponseList = productService.searchByName(name);
+        return ApiResponse.<List<ProductResponse>>builder()
+                .result(productResponseList)
+                .build();
+//        http://localhost:8080/identity/product/search?name=iphone
+    }
     @Autowired
     private ObjectMapper objectMapper;
 
