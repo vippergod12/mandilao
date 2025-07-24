@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ws.prj.dto.request.ProductRequest;
@@ -40,6 +42,12 @@ public class ProductServiceImpl implements ProductService {
     CategoryRepositoryDAO categoryRepo;
     @Autowired
     private ProductRepositoryDAO productRepositoryDAO;
+
+//    @Override
+//    public List<ProductResponse> findAll() {
+//        List<Product> entities = repo.findAll();
+//        return mapper.toResponseList(entities);
+//    }
 
     @Override
     public List<ProductResponse> findAll() {
@@ -173,6 +181,12 @@ public class ProductServiceImpl implements ProductService {
         repo.deleteById(id);
     }
 
+    @Override
+    public Page<ProductResponse> findAll(Pageable pageable) {
+        Page<Product> products = repo.findAll(pageable);
+
+        return products.map(mapper::toResponse);
+    }
 
 
 }
