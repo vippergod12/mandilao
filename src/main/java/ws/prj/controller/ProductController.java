@@ -55,8 +55,13 @@ public class ProductController {
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
+
         PageRequest pageRequest = PageRequest.of(page, size, sort);
+
         Page<ProductResponse> products = service.findAll(pageRequest);
+
+//        http://localhost:8080/identity/product?page=0&size=10&sortBy=name&direction=desc
+//        http://localhost:8080/identity/product?page=0&size=10&sortBy=price&direction=desc
         return ApiResponse.<Page<ProductResponse>>builder().result(products).build();
     }
 
