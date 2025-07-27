@@ -5,16 +5,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ws.prj.contants.PredefineRole;
 import ws.prj.entity.Role;
 import ws.prj.entity.User;
+import ws.prj.mapper.UserMapperImpl;
 import ws.prj.repository.RoleRepository;
+
 import ws.prj.repository.UserRepository;
+import ws.prj.service.impl.UserServiceImpl;
 
 import java.util.HashSet;
 
@@ -24,8 +27,7 @@ import java.util.HashSet;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
-
-    PasswordEncoder passwordEncoder;
+     PasswordEncoder passwordEncoder;
 
     @NonFinal
     static final String ADMIN_USER_NAME = "admin";
