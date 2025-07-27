@@ -18,8 +18,8 @@ public interface UserService {
     void update(User user);
     void deleteByUsername(String username);
     boolean existsByUsername(String username);
-    String forgotPass(ForgotPassRequest request, HttpSession session);
+    void forgotPass(ForgotPassRequest request, HttpSession session);
     String confirmOtp (ConfirmOtpRequest request, HttpSession session);
-    String changePass(ChangePassRequest body,String userId);
+    void changePass(ChangePassRequest body,String userId);
 
 }

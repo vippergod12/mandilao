@@ -32,4 +32,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Image> images;
 
+    @OneToMany(mappedBy = "product")
+    List<OrderDetail> orderDetails;
+
 }

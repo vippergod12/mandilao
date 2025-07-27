@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String forgotPass(ForgotPassRequest request, HttpSession session){
+    public void forgotPass(ForgotPassRequest request, HttpSession session){
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -112,7 +112,6 @@ public class UserServiceImpl implements UserService {
 
         String content = "Đây là mã OTP của bạn: " + otp + "\nVui lòng OTP và đổi mật khẩu ngay!";
         mailSerice.sendMail(request.getEmail(), "Khôi phục mật khẩu", content);
-        return "Đã gửi mã OTP tới email của bạn!";
     }
 
     @Override
@@ -139,24 +138,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String changePass(ChangePassRequest request,String userId ) {
-        Optional<User> optional = userRepository.findById(userId);
-
-        if(optional.isEmpty()){
-            return "Lỗi: Không tìm thấy người dùng";
-        }
-
-        User user = optional.get();
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            return "Mật khẩu cũ không đúng !";
-        }
-
-        if (!request.getNewPass().equals(request.getConfirmPass())){
-            return "Mật khẩu mới và mật khẩu xác thực không trùng khớp !";
-        }
+    public void changePass(ChangePassRequest request,String userId ) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         user.setPassword(passwordEncoder.encode(request.getNewPass()));
         userRepository.save(user);
-        return "Đổi mật khẩu thành công" ;
     }
 
     private String generateRandomPassword(int length){

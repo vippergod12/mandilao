@@ -26,13 +26,10 @@ public class ForgotController {
 
     @PostMapping("/forgot-password")
     @ResponseBody
-    public ApiResponse<String> forgotPassword(@RequestBody ForgotPassRequest request, HttpSession session) {
-
-        System.out.println(request.getEmail());
-        System.out.println(session);
-        String result = userService.forgotPass(request,session);
-        return ApiResponse.<String>builder()
-                .result(result)
+    public ApiResponse<Void> forgotPassword(@RequestBody ForgotPassRequest request, HttpSession session) {
+        userService.forgotPass(request,session);
+        return ApiResponse.<Void>builder()
+                .message("Send OTP to mail")
                 .build();
     }
 

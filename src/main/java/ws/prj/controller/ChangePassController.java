@@ -12,7 +12,7 @@ import ws.prj.service.UserService;
 
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
@@ -22,11 +22,10 @@ public class ChangePassController {
     UserService userService;
 
     @PostMapping("/change-password/{userId}")
-    public ApiResponse<String> changepassword(@RequestBody ChangePassRequest body, @PathVariable("userId") String userId){
-        System.out.println(userId);
-        String result = userService.changePass(body,userId);
-        return ApiResponse.<String>builder()
-                .result(result)
+    public ApiResponse<Void> changepassword(@RequestBody ChangePassRequest body, @PathVariable("userId") String userId){
+         userService.changePass(body,userId);
+        return ApiResponse.<Void>builder()
+                .message("Password changed successfully")
                 .build();
     }
 }
