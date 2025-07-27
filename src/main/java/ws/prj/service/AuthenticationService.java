@@ -23,6 +23,8 @@ import ws.prj.dto.request.RefreshRequest;
 import ws.prj.dto.response.AuthenticationResponse;
 import ws.prj.dto.response.IntrospectResponse;
 import ws.prj.entity.InvalidatedToken;
+import ws.prj.entity.Permission;
+import ws.prj.entity.Role;
 import ws.prj.entity.User;
 import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
@@ -81,6 +83,7 @@ public class AuthenticationService {
             return AuthenticationResponse.builder()
                     .token(token)
                     .authenticated(true)
+                    .scope(buildScope(user))
                     .build();
 
         }catch(AppException e){
@@ -138,9 +141,12 @@ public class AuthenticationService {
 
         var token = generateToken(user);
 
+        String scope = buildScope(user);
+        System.out.println("SCOPE DEBUG: " + scope);
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(true)
+                .scope(scope)
                 .build();
 
     }
@@ -176,12 +182,20 @@ public class AuthenticationService {
 
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-        if (!CollectionUtils.isEmpty(user.getRoles()))
-            user.getRoles().forEach(role -> { stringJoiner.add( "ROLE_" + role.getName());
-                if (!CollectionUtils.isEmpty(role.getPermissions()))
-                    role.getPermissions().forEach(permission -> stringJoiner.add(permission.getName()));
-            });
+
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            for (Role role : user.getRoles()) {
+                stringJoiner.add("ROLE_" + role.getName());
+
+//                if (role.getPermissions() != null) {
+//                    for (Permission p : role.getPermissions()) {
+//                        stringJoiner.add(p.getName());
+//                    }
+//                }
+            }
+        }
 
         return stringJoiner.toString();
     }
+
 }

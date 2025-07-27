@@ -39,7 +39,6 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String signerKey;
 
-
     private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/oauth2/authorization/google"};
 
     @Bean
@@ -51,6 +50,8 @@ public class SecurityConfig {
             config.requestMatchers(HttpMethod.POST,PUBLIC_ENPOINTS).permitAll()
                     .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET,"/product").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/product").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT,"/product").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET,"/category").permitAll()
                     .requestMatchers(HttpMethod.GET,"/images").permitAll()
                     .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()

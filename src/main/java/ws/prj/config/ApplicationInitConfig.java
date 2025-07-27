@@ -15,6 +15,7 @@ import ws.prj.entity.Role;
 import ws.prj.entity.User;
 import ws.prj.repository.RoleRepository;
 import ws.prj.repository.UserRepository;
+import ws.prj.service.AuthService;
 
 import java.util.HashSet;
 
@@ -34,11 +35,11 @@ public class ApplicationInitConfig {
     static final String ADMIN_PASSWORD = "admin";
 
     @Bean
-//    @ConditionalOnProperty(
-//            prefix = "spring",
-//            value = "datasource.driverClassName",
-//            havingValue = "com.mysql.cj.jdbc.Driver")
-    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
+    ApplicationRunner applicationRunner(
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            AuthService authService // 👈 THÊM dòng này
+    ) {
         log.info("Initializing application.....");
         return args -> {
             if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
@@ -67,4 +68,5 @@ public class ApplicationInitConfig {
             log.info("Application initialization completed .....");
         };
     }
+
 }

@@ -32,7 +32,6 @@ public class ProductController {
     @GetMapping
     public ApiResponse<List<ProductResponse>> getAll() {
         List<ProductResponse> products = service.findAll();
-//        log.info("Fetched {} products", products.size());
         return ApiResponse.<List<ProductResponse>>builder()
                 .result(products)
                 .build();
@@ -41,7 +40,6 @@ public class ProductController {
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getById(@PathVariable UUID id) {
         ProductResponse product = service.findById(id);
-//        log.info("Fetched product with ID: {}, images: {}", id, product.getImages());
         return ApiResponse.<ProductResponse>builder()
                 .result(product)
                 .build();
@@ -55,7 +53,22 @@ public class ProductController {
             @RequestPart("product") String productJson,
             @RequestPart("images") MultipartFile[] images
     ) throws JsonProcessingException {
-        log.info("Creating product with raw json: {}", productJson);
+        System.out.println("Files received: " + images.length);
+//        for (MultipartFile img : images) {
+//            System.out.println("File: " + img.getOriginalFilename());
+//        }
+
+        System.out.println("Product JSON: " + productJson);
+        System.out.println("Files received: " + images.length);
+        for (MultipartFile img : images) {
+            if (img != null) {
+                System.out.println("----- Ảnh nhận được -----");
+                System.out.println("Tên file      : " + img.getOriginalFilename());
+                System.out.println("Loại MIME     : " + img.getContentType());
+            } else {
+                System.out.println("Một phần tử ảnh bị null");
+            }
+        }
 
         // Parse chuỗi JSON thành đối tượng
         ProductRequest productRequest = objectMapper.readValue(productJson, ProductRequest.class);
@@ -68,19 +81,24 @@ public class ProductController {
                 .build();
     }
 
-    @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> update(@PathVariable UUID id, @RequestBody ProductRequest request) {
-        ProductResponse response = service.update(id, request);
-        log.info("Updated product with ID: {}", id);
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ProductResponse> update(
+            @PathVariable UUID id,
+            @RequestPart("product") String productJson,
+            @RequestPart(value = "images", required = false) MultipartFile[] images
+    ) throws JsonProcessingException {
+        ProductRequest productRequest = objectMapper.readValue(productJson, ProductRequest.class);
+        ProductResponse response = service.update(id, productRequest);
         return ApiResponse.<ProductResponse>builder()
                 .result(response)
+                .message("Cap nhat san pham thanh cong")
                 .build();
     }
+
 
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable UUID id) {
         service.delete(id);
-        log.info("Deleted product with ID: {}", id);
         return ApiResponse.<Void>builder()
                 .message("Product deleted")
                 .build();
