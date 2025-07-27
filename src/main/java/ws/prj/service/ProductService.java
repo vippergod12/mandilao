@@ -10,6 +10,8 @@ import java.util.UUID;
 public interface ProductService {
     List<ProductResponse> findAll();
     ProductResponse findById(UUID id);
+//    List<ProductResponse> findByName(String name);
+    List<ProductResponse> searchByName(String name);
     ProductResponse create(ProductRequest request, MultipartFile[] images);
     ProductResponse update(UUID ID,ProductRequest request);
     void delete(UUID id);
