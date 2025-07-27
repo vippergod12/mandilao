@@ -13,4 +13,5 @@ public interface ProductRepositoryDAO extends JpaRepository<Product, UUID> {
     Product findByName(String name);
 
     List<Product> findByNameContainingIgnoreCase(String name);
+
 }

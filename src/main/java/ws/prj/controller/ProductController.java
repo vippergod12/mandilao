@@ -6,7 +6,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
@@ -34,14 +38,33 @@ public class ProductController {
     @Autowired
     private RestClient.Builder builder;
 
+//    @GetMapping
+//    public ApiResponse<List<ProductResponse>> getAll() {
+//        List<ProductResponse> products = service.findAll();
+////        log.info("Fetched {} products", products.size());
+//        return ApiResponse.<List<ProductResponse>>builder()
+//                .result(products)
+//                .build();
+//    }
     @GetMapping
-    public ApiResponse<List<ProductResponse>> getAll() {
-        List<ProductResponse> products = service.findAll();
-//        log.info("Fetched {} products", products.size());
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(products)
-                .build();
+    public ApiResponse<Page<ProductResponse>> getAll(@RequestParam("page") int page,
+                                                     @RequestParam("size") int size,
+                                                     @RequestParam(name = "sortBy", defaultValue = "name") String sortBy,
+                                                     @RequestParam(name = "direction", defaultValue = "asc")String direction){
+
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ProductResponse> products = service.findAll(pageRequest);
+
+//        http://localhost:8080/identity/product?page=0&size=10&sortBy=name&direction=desc
+//        http://localhost:8080/identity/product?page=0&size=10&sortBy=price&direction=desc
+        return ApiResponse.<Page<ProductResponse>>builder().result(products).build();
     }
+
 
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getById(@PathVariable UUID id) {
