@@ -19,7 +19,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
+
     CategoryRepositoryDAO repo;
+
     @Qualifier("categoryMapperImpl")
     CategoryMapper mapper;
 

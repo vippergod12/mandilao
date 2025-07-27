@@ -16,10 +16,12 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name="Users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    @Column
+
+    @Column(name="username",unique = true, columnDefinition = "VARCHAR(255) COLLATE SQL_Latin1_General_CP1_CI_AS")
     String username;
     @Column
     String password;
