@@ -43,15 +43,17 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/oauth2/authorization/google"};
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.csrf(config -> config.disable());
         http.cors(config -> config.configurationSource(corsConfigurationSource()));
         http.authorizeHttpRequests(config -> {
             config.requestMatchers(HttpMethod.POST,PUBLIC_ENPOINTS).permitAll()
-                    .requestMatchers(HttpMethod.GET,"/users").hasAuthority("SCOPE_ADMIN")
+                    .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET,"/product").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/category").permitAll()
                     .requestMatchers(HttpMethod.GET,"/images").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                     .anyRequest().authenticated();
         });
 //        http.oauth2Login(login -> {

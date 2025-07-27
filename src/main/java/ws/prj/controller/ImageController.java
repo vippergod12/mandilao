@@ -2,7 +2,11 @@ package ws.prj.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ws.prj.dto.request.ApiResponse;
@@ -10,6 +14,9 @@ import ws.prj.dto.request.ImageRequest;
 import ws.prj.dto.response.ImageResponse;
 import ws.prj.service.ImageService;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +29,27 @@ import static lombok.AccessLevel.PRIVATE;
 public class ImageController {
 
     ImageService imageService;
+
+    @GetMapping(value = "/uploads/{filename}", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
+        try {
+            Path uploadDir = Paths.get("uploads"); // đường dẫn thư mục lưu ảnh
+            Path filePath = uploadDir.resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists()) {
+                String contentType = Files.probeContentType(filePath);
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
     /**
      * Upload ảnh cho sản phẩm.
