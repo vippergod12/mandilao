@@ -40,7 +40,7 @@ public class SecurityConfig {
     private String signerKey;
 
 
-    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/oauth2/authorization/google"};
+    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/auth/logout"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
