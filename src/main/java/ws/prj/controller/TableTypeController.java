@@ -21,7 +21,7 @@ public class TableTypeController {
 
     TableTypeService service;
 
-    // ✅ Lấy tất cả TableType
+
     @GetMapping
     public ApiResponse<List<TableTypeResponse>> getAll() {
         List<TableTypeResponse> types = service.findAll();
@@ -31,7 +31,7 @@ public class TableTypeController {
                 .build();
     }
 
-    // ✅ Lấy TableType theo ID
+
     @GetMapping("/{id}")
     public ApiResponse<TableTypeResponse> getById(@PathVariable Long id) {
         TableTypeResponse type = service.findById(id);
@@ -41,7 +41,7 @@ public class TableTypeController {
                 .build();
     }
 
-    // ✅ Tạo mới TableType
+
     @PostMapping
     public ApiResponse<TableTypeResponse> create(@RequestBody TableTypeRequest request) {
         TableTypeResponse response = service.create(request);
@@ -52,7 +52,7 @@ public class TableTypeController {
                 .build();
     }
 
-    // ✅ Cập nhật TableType
+
     @PutMapping("/{id}")
     public ApiResponse<TableTypeResponse> update(@PathVariable Long id, @RequestBody TableTypeRequest request) {
         TableTypeResponse response = service.update(id, request);
@@ -63,7 +63,7 @@ public class TableTypeController {
                 .build();
     }
 
-    // ✅ Xóa TableType
+
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
