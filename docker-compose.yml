@@ -11,7 +11,7 @@ services:
     networks:
       - backend
     healthcheck:
-      test: [ "CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Admin123!", "-Q", "SELECT 1" ]
+      test: [ "CMD-SHELL", "echo > /dev/tcp/localhost/1433"]
       interval: 10s
       timeout: 5s
       retries: 10
