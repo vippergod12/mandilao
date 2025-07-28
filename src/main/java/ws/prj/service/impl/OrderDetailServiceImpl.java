@@ -43,7 +43,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         log.info("Method findAll with role ADMIN");
         return orderDetailRepository.findAll().stream().map(mapper::toOrderDetailResponse).toList();
     }
-
+    //e dung lam
     @Override
     public List<OrderDetailResponse> create(List<OrderDetailRequest> requestList, Orders orders) {
         List<OrderDetail> orderDetails = new ArrayList<>();
@@ -70,7 +70,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
                 .collect(Collectors.toList());
 
     }
-
+    //e dung lam
     @Override
     public List<OrderDetailResponse> addOrUpdateOrderDetails(Orders orders, List<OrderDetailRequest> requestList) {
         Map<UUID, OrderDetail> existingDetailsMap = orders.getOrderDetails().stream()
@@ -108,6 +108,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         return orders.getOrderDetails().stream()
                 .map(mapper::toOrderDetailResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderDetailResponse> findByOrderId(UUID orderId) {
+        List<OrderDetail> details = orderDetailRepository.findByOrders_Id(orderId);
+        return mapper.toOrderDetailResponses(details);
     }
 
 

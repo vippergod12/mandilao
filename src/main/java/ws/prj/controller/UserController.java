@@ -59,7 +59,7 @@ public class UserController {
                 .build();
     }
 
-    @PostMapping("/order/call")
+    @PostMapping("/order")
     public ApiResponse<OrderReponse> callOrder(@RequestBody OrderRequest request) {
         return ApiResponse.<OrderReponse>builder()
                 .result(orderServiceImpl.update(request))
