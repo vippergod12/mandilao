@@ -1,1 +1,3 @@
+-- init.sql
 CREATE DATABASE WEB_NHAHANGLAU;
+GO

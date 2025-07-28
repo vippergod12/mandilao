@@ -10,6 +10,28 @@ services:
       - "1433:1433"
     networks:
       - backend
+    healthcheck:
+      test: [ "CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Admin123!", "-Q", "SELECT 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  db-init:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./init.sql:/init.sql
+    entrypoint: [ "/bin/bash", "-c", "sleep 15 && /opt/mssql-tools/bin/sqlcmd -S db -U sa -P Admin123! -i /init.sql" ]
+    networks:
+      - backend
+  dbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: dbeaver
+    ports:
+      - "8978:8978"
+    networks:
+      - backend
 
   app:
     image: ws-app

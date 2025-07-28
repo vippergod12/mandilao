@@ -41,7 +41,7 @@ import java.util.StringJoiner;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
-    UserServiceImpl userService;
+    UserService userService;
     InvalidatedTokenRepository invalidatedTokenRepository;
     private final UserRepository userRepository;
 
@@ -79,7 +79,7 @@ public class AuthenticationService {
 
             var token = generateToken(user);
             return AuthenticationResponse.builder()
-                    .token(token)
+                    .token(token.token)
                     .authenticated(true)
                     .build();
 
@@ -88,16 +88,20 @@ public class AuthenticationService {
         }
     }
 
-    private String generateToken(User user){
+    private TokenInfo generateToken(User user){
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-
+        Date issueTime = new Date();
+        Date expiryTime = new Date(Instant.ofEpochMilli(issueTime.getTime())
+                .plus(1, ChronoUnit.HOURS)
+                .toEpochMilli());
         //các data trong body gọi là claimset
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername()) // đại diện cho user đăng nhập
                 .issuer("tien") // thường  là domain service
-                .issueTime(new Date()) //Lấy thời điểm hịiện tại
-                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli())) //Thời  hạn token
+                .issueTime(issueTime) //Lấy thời điểm hịiện tại
+                .expirationTime(expiryTime) //Thời  hạn token
+                .jwtID(java.util.UUID.randomUUID().toString())
                 .claim("scope",buildScope(user))
                 .build();
 
@@ -107,10 +111,11 @@ public class AuthenticationService {
 
         try {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes())); //thuật toán ký và giải mã trùng nhau https://generate-random.org/
-            return jwsObject.serialize();
+            return new TokenInfo(jwsObject.serialize(), expiryTime);
+
         } catch (JOSEException e) {
             log.error("Cannot create token", e);
-            throw new RuntimeException(e);
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
     }
 
@@ -139,7 +144,7 @@ public class AuthenticationService {
         var token = generateToken(user);
 
         return AuthenticationResponse.builder()
-                .token(token)
+                .token(token.token)
                 .authenticated(true)
                 .build();
 
@@ -184,4 +189,5 @@ public class AuthenticationService {
 
         return stringJoiner.toString();
     }
+    private record TokenInfo(String token, Date expiryDate) {}
 }
