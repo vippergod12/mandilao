@@ -15,7 +15,8 @@ import ws.prj.entity.Role;
 import ws.prj.entity.User;
 import ws.prj.mapper.UserMapperImpl;
 import ws.prj.repository.RoleRepository;
-import ws.prj.repository.UserResponseDAO;
+
+import ws.prj.repository.UserRepository;
 import ws.prj.service.impl.UserServiceImpl;
 
 import java.util.HashSet;
@@ -33,28 +34,39 @@ public class ApplicationInitConfig {
 
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
+
     @Bean
-    ApplicationRunner applicationRunner(UserResponseDAO userResponseDAO, RoleRepository roleRepository, UserMapperImpl userMapperImpl){
+//    @ConditionalOnProperty(
+//            prefix = "spring",
+//            value = "datasource.driverClassName",
+//            havingValue = "com.mysql.cj.jdbc.Driver")
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
+        log.info("Initializing application.....");
         return args -> {
-            if(userResponseDAO.findByUsername(ADMIN_USER_NAME) == null){
-                Role adminRole = roleRepository.save(Role.builder()
-                        .name(PredefineRole.ADMIN_ROLE)
-                        .description("Admin role")
-                        .build());
-                 roleRepository.save(Role.builder()
+            if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
+                roleRepository.save(Role.builder()
                         .name(PredefineRole.USER_ROLE)
                         .description("User role")
                         .build());
 
+                Role adminRole = roleRepository.save(Role.builder()
+                        .name(PredefineRole.ADMIN_ROLE)
+                        .description("Admin role")
+                        .build());
+
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
-                User u = User.builder()
+
+                User user = User.builder()
                         .username(ADMIN_USER_NAME)
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
                         .roles(roles)
                         .build();
-                userResponseDAO.save(u);
+
+                userRepository.save(user);
+                log.warn("admin user has been created with default password: admin, please change it");
             }
+            log.info("Application initialization completed .....");
         };
     }
 }

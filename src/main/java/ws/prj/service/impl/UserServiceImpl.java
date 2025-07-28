@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ws.prj.contants.PredefineRole;
@@ -20,61 +19,65 @@ import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
 import ws.prj.mapper.UserMapper;
 import ws.prj.repository.RoleRepository;
-import ws.prj.repository.UserResponseDAO;
+import ws.prj.repository.UserRepository;
 import ws.prj.service.UserService;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
-    UserResponseDAO userResponseDAO;
+    UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
 
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')") //Spring sẽ tạo ra 1 proxy trước cái hàm. sẽ ktra role là admin thì mơi gọi đến method
     public List<UserResponse> findAll() {
         log.info("Method findAll with role ADMIN");
-        return userResponseDAO.findAll().stream().map(userMapper::toUserResponse).toList();
+        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
 
     @Override
     public UserResponse create(UserCreationRequest request) {
-        if(userResponseDAO.existsByUsername(request.getUsername())) throw new RuntimeException("User already exists");
+        if(userRepository.existsByUsername(request.getUsername())) throw new RuntimeException("User already exists");
+        log.info("DOB: {}", request.getDob());
+        log.info("Fullname: {}", request.getFullName());
+
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         HashSet<Role>roles = new HashSet<>();
         roleRepository.findById(PredefineRole.USER_ROLE).ifPresent(roles::add);
         user.setRoles(roles);
-        return userMapper.toUserResponse(userResponseDAO.save(user));
+
+        User userSaved = userRepository.save(user);
+        log.info(">>> User SAVED: {}", userSaved.toString());
+        return userMapper.toUserResponse(userSaved);
     }
 
     @Override
     public void update(User user) {
-        userResponseDAO.save(user);
+        userRepository.save(user);
     }
 
     @Override
     public void deleteByUsername(String username) {
-        userResponseDAO.deleteByUsername(username);
+        userRepository.deleteByUsername(username);
     }
 
     @Override
     public boolean existsByUsername(String username) {
-        return userResponseDAO.existsByUsername(username);
+        return userRepository.existsByUsername(username);
     }
 
     @PostAuthorize("returnObject.username == authentication.name")// check sau khi method thuc thi xong
     public UserResponse getUser(String id){
-        return userMapper.toUserResponse(userResponseDAO.findById(id).orElseThrow(() ->
+        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() ->
                 new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
@@ -82,7 +85,7 @@ public class UserServiceImpl implements UserService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
-        User user = userResponseDAO.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
     }

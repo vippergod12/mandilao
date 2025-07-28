@@ -19,6 +19,6 @@ public class UserUpdateRequest {
     String email;
     String phone;
     String image;
-
+    String fullName;
     List<Role> roles;
 }

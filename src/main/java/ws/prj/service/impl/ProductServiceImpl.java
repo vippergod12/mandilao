@@ -38,6 +38,8 @@ public class ProductServiceImpl implements ProductService {
     ProductMapper mapper;
 
     CategoryRepositoryDAO categoryRepo;
+    @Autowired
+    private ProductRepositoryDAO productRepositoryDAO;
 
     @Override
     public List<ProductResponse> findAll() {
@@ -51,6 +53,17 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         return mapper.toResponse(found);
     }
+
+    @Override
+    public List<ProductResponse> searchByName(String name) {
+        List<Product> productList = productRepositoryDAO.findByNameContainingIgnoreCase(name);
+        return mapper.toResponseList(productList);
+    }
+
+//    @Override
+//    public ProductResponse findByName(String name) {
+//        return null;
+//    }
 
     @Override
     @Transactional
@@ -159,4 +172,7 @@ public class ProductServiceImpl implements ProductService {
     public void delete(UUID id) {
         repo.deleteById(id);
     }
+
+
+
 }
