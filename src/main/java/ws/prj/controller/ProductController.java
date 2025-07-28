@@ -34,8 +34,7 @@ public class ProductController {
     
     ProductService service;
     ProductRepositoryDAO productRepositoryDAO;
-    @Autowired
-    private ProductService productService;
+
     @Autowired
     private RestClient.Builder builder;
 
@@ -77,7 +76,7 @@ public class ProductController {
     }
     @GetMapping("/search")
     public ApiResponse<List<ProductResponse>> search(@RequestParam String name) {
-        List<ProductResponse> productResponseList = productService.searchByName(name);
+        List<ProductResponse> productResponseList = service.searchByName(name);
         return ApiResponse.<List<ProductResponse>>builder()
                 .result(productResponseList)
                 .build();

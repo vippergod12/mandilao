@@ -40,7 +40,14 @@ public class SecurityConfig {
     private String signerKey;
 
 
-    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/oauth2/authorization/google"};
+    private final String[] PUBLIC_ENPOINTS = {
+            "/users",
+            "/auth/login",
+            "/auth/introspect",
+            "/oauth2/authorization/google",
+
+
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
@@ -50,7 +57,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(config -> {
             config.requestMatchers(HttpMethod.POST,PUBLIC_ENPOINTS).permitAll()
                     .requestMatchers(HttpMethod.GET,"/users").hasAuthority("SCOPE_ADMIN")
-                    .requestMatchers(HttpMethod.GET,"/product").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/product","/product/search").permitAll()
                     .requestMatchers(HttpMethod.GET,"/images").permitAll()
                     .anyRequest().authenticated();
         });
