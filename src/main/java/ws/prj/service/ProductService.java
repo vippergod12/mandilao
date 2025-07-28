@@ -1,5 +1,7 @@
 package ws.prj.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import ws.prj.dto.request.ProductRequest;
 import ws.prj.dto.response.ProductResponse;
@@ -15,4 +17,6 @@ public interface ProductService {
     ProductResponse create(ProductRequest request, MultipartFile[] images);
     ProductResponse update(UUID ID,ProductRequest request);
     void delete(UUID id);
+
+     Page<ProductResponse> findAll(Pageable pageable);
 }
