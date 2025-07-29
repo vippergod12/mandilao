@@ -13,6 +13,7 @@ import ws.prj.dto.response.OrderDetailResponse;
 import ws.prj.entity.OrderDetail;
 import ws.prj.entity.Orders;
 import ws.prj.entity.Product;
+import ws.prj.entity.User;
 import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
 import ws.prj.mapper.OrderDetailMapper;
@@ -38,12 +39,11 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     OrderDetailMapper mapper;
 
     @Override
-    @PreAuthorize("hasRole(ADMIN)")
+    @PreAuthorize("isAuthenticated")
     public List<OrderDetailResponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return orderDetailRepository.findAll().stream().map(mapper::toOrderDetailResponse).toList();
     }
-
 
     @Override
     public List<OrderDetailResponse> create(List<OrderDetailRequest> requestList, Orders orders) {
@@ -110,6 +110,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
                 .map(mapper::toOrderDetailResponse)
                 .collect(Collectors.toList());
     }
+
+
 
 
 }

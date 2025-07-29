@@ -13,5 +13,4 @@ public interface OrderDetailService {
     List<OrderDetailResponse> findAll();
     List<OrderDetailResponse> create(List<OrderDetailRequest> requestList, Orders orders);
     List<OrderDetailResponse> addOrUpdateOrderDetails(Orders orders, List<OrderDetailRequest> requestList);
-//    List<OrderDetailResponse> findByOrderId(UUID orderId);
 }

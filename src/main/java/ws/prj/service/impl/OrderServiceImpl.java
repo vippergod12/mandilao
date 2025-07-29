@@ -34,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     OrderDetailService orderDetailService;
     OrderMapper orderMapper;
 
+    // e dung lam
     @Override
     public OrderReponse create(OrderRequest request) {
         User user = null;
@@ -67,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
 
         return orderMapper.toOrderResponse(saved);
     }
-
+    // e dung lam
     @Override
     public OrderReponse update(OrderRequest request) {
         Orders orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(), "PENDING")
@@ -86,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
         Orders saved = orderRepositoryDAO.save(orders);
         return orderMapper.toOrderResponse(saved);
     }
-
+    // e dung lam
     @Override
     @PreAuthorize("hasRole(ADMIN)")
     public List<OrderReponse> findAll() {
