@@ -3,6 +3,8 @@ package ws.prj.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -21,4 +23,9 @@ public class Tables {
     @ManyToOne
     @JoinColumn(name = "tableType_id")
     private TableType tableType;
+
+    @OneToMany(mappedBy = "tables")
+    List<Orders> orders;
+
 }
+

@@ -1,5 +1,6 @@
 package ws.prj.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,3 +23,4 @@ public class TableType {
     @OneToMany(mappedBy = "tableType")
     private List<Tables> tables = new ArrayList<>();
 }
+

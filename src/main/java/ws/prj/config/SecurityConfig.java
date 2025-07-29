@@ -40,7 +40,9 @@ public class SecurityConfig {
     private String signerKey;
 
 
+
     private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/auth/logout"};
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {

@@ -6,10 +6,12 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
-import ws.prj.dto.request.ApiResponse;
-import ws.prj.dto.request.UserCreationRequest;
+import ws.prj.dto.request.*;
+import ws.prj.dto.response.OrderReponse;
 import ws.prj.dto.response.UserResponse;
+import ws.prj.service.impl.OrderServiceImpl;
 import ws.prj.service.impl.UserServiceImpl;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 public class UserController {
 
     UserServiceImpl userServiceImpl;
+    OrderServiceImpl orderServiceImpl;
 
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody UserCreationRequest request){
@@ -51,5 +54,23 @@ public class UserController {
                 .result(userServiceImpl.getMyInfo())
                 .build();
     }
+
+    @PostMapping("/change-password/{userId}")
+    ApiResponse<Void> changepassword(@RequestBody ChangePassRequest body, @PathVariable("userId") String userId){
+        userServiceImpl.changePass(body,userId);
+        return ApiResponse.<Void>builder()
+                .message("Password changed successfully")
+                .build();
+    }
+
+    @PostMapping("/order/call")
+    public ApiResponse<OrderReponse> callOrder(@RequestBody OrderRequest request) {
+        return ApiResponse.<OrderReponse>builder()
+                .result(orderServiceImpl.update(request))
+                .build();
+    }
+
+
+
 
 }
