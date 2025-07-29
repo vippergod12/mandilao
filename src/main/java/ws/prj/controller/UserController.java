@@ -70,6 +70,13 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/orders")
+    public ApiResponse<List<OrderReponse>> getOrdersByUser(@RequestBody OrderRequest request){
+        return ApiResponse.<List<OrderReponse>>builder()
+                .result(orderServiceImpl.findOrderByUserId(request))
+                .build();
+    }
+
 
 
 

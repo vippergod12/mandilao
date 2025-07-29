@@ -23,6 +23,7 @@ import java.text.ParseException;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationController {
 
+    @Autowired
     AuthenticationService authService;
 
     @PostMapping("/token")

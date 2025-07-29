@@ -12,7 +12,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class OrderRequest {
-    UUID id_table;
-    String id_users;
+    Long id_table;
+    String id_user;
     List<OrderDetailRequest> orderDetaiList;
 }

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import ws.prj.dto.request.OrderDetailRequest;
 import ws.prj.dto.request.OrderRequest;
 import ws.prj.dto.response.OrderDetailResponse;
 import ws.prj.dto.response.OrderReponse;
@@ -16,15 +15,12 @@ import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
 import ws.prj.mapper.OrderMapper;
 import ws.prj.repository.OrderRepositoryDAO;
-import ws.prj.repository.ProductRepositoryDAO;
-import ws.prj.repository.TableRepositoryDAO;
+import ws.prj.repository.TableRespositoryDAO;
 import ws.prj.repository.UserRepository;
 import ws.prj.service.OrderDetailService;
 import ws.prj.service.OrderService;
-import ws.prj.service.ProductService;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -33,7 +29,7 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
     OrderRepositoryDAO orderRepositoryDAO;
-    TableRepositoryDAO tableRepositoryDAO;
+    TableRespositoryDAO tableRepositoryDAO;
     UserRepository userRepository;
     OrderDetailService orderDetailService;
     OrderMapper orderMapper;
@@ -43,8 +39,8 @@ public class OrderServiceImpl implements OrderService {
         User user = null;
         Tables table = null;
 
-        if (request.getId_users() != null) {
-            user = userRepository.findById(request.getId_users())
+        if (request.getId_user() != null) {
+            user = userRepository.findById(request.getId_user())
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         }
 
@@ -74,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderReponse update(OrderRequest request) {
-        Orders orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_users(), "PENDING")
+        Orders orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(), "PENDING")
                 .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "PENDING"))
                 .orElse(null);
 
@@ -92,16 +88,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("hasRole(ADMIN)")
     public List<OrderReponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return orderRepositoryDAO.findAll().stream().map(orderMapper::toOrderResponse).toList();
     }
 
-//    @Override
-//    public void delete(OrderRequest request) {
-//
-//    }
+    @Override
+    public List<OrderReponse> findOrderByUserId(OrderRequest request) {
+        User user = userRepository.findById(request.getId_user())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        String idUser = user.getId();
+        List<Orders> ordersList = orderRepositoryDAO.findByUser_Id(idUser);
+        return ordersList.stream().map(orderMapper :: toOrderResponse).toList();
+    }
 
 
 }

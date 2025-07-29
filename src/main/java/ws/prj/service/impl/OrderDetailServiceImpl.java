@@ -38,11 +38,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     OrderDetailMapper mapper;
 
     @Override
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("hasRole(ADMIN)")
     public List<OrderDetailResponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return orderDetailRepository.findAll().stream().map(mapper::toOrderDetailResponse).toList();
     }
+
 
     @Override
     public List<OrderDetailResponse> create(List<OrderDetailRequest> requestList, Orders orders) {
