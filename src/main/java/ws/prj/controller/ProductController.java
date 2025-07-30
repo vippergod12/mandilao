@@ -75,7 +75,7 @@ public class ProductController {
                 .build();
     }
     @GetMapping("/search")
-    public ApiResponse<List<ProductResponse>> search(@RequestParam String name) {
+    public ApiResponse<List<ProductResponse>> search(@RequestParam(name="name") String name) {
         List<ProductResponse> productResponseList = service.searchByName(name);
         return ApiResponse.<List<ProductResponse>>builder()
                 .result(productResponseList)
