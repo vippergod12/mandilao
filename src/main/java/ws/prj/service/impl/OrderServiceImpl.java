@@ -34,7 +34,8 @@ public class OrderServiceImpl implements OrderService {
     OrderDetailService orderDetailService;
     OrderMapper orderMapper;
 
-    // e dung lam
+
+
     @Override
     public OrderReponse create(OrderRequest request) {
         User user = null;
@@ -53,12 +54,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Orders orders = orderMapper.toEntity(request);
-        orders.setId(UUID.randomUUID());
         orders.setCreatedAt(new java.sql.Date(System.currentTimeMillis()));
         orders.setStatus("PENDING");
-        if (user != null) {
-            orders.setUser(user);
-        }
+        if (user != null) {orders.setUser(user);}
         orders.setTables(table);
 
         Orders saved = orderRepositoryDAO.save(orders);
@@ -66,41 +64,44 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetailResponse> detailResponses =
                 orderDetailService.create(request.getOrderDetaiList(),orders);
 
-        return orderMapper.toOrderResponse(saved);
+        return OrderReponse.builder()
+                .id(saved.getId())
+                .status(saved.getStatus())
+                .orderDetails(detailResponses)
+                .createdAt(saved.getCreatedAt())
+                .updatedAt(saved.getUpdatedAt())
+                .build();
     }
-    // e dung lam
+
     @Override
     public OrderReponse update(OrderRequest request) {
         Orders orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(), "PENDING")
                 .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "PENDING"))
                 .orElse(null);
-
-        if (orders == null) {
-            return create(request);
-        }
+        if (orders == null) {return create(request);}
 
         orders.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
-
         List<OrderDetailResponse> detailResponses =
                 orderDetailService.addOrUpdateOrderDetails(orders, request.getOrderDetaiList());
 
         Orders saved = orderRepositoryDAO.save(orders);
         return orderMapper.toOrderResponse(saved);
     }
-    // e dung lam
+
     @Override
-    @PreAuthorize("hasRole(ADMIN)")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OrderReponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return orderRepositoryDAO.findAll().stream().map(orderMapper::toOrderResponse).toList();
     }
 
     @Override
+    @PreAuthorize("hasRole('USER')")
     public List<OrderReponse> findOrderByUserId(OrderRequest request) {
         User user = userRepository.findById(request.getId_user())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         String idUser = user.getId();
-        List<Orders> ordersList = orderRepositoryDAO.findByUser_Id(idUser);
+        List<Orders> ordersList = orderRepositoryDAO.findAllByUserId(idUser);
         return ordersList.stream().map(orderMapper :: toOrderResponse).toList();
     }
 

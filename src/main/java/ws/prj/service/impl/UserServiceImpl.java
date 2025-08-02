@@ -133,13 +133,26 @@ public class UserServiceImpl implements UserService {
         session.removeAttribute("otp");
         session.removeAttribute("otp_created_time");
         session.setAttribute("otp_verified", true);
-        return "OTP hợp lệ! Vui lòng nhập mật khẩu mới.";
+        return "OTP hợp lệ!";
     }
 
     @Override
     public void changePass(ChangePassRequest request,String userId ) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        if(request.getNewPass() == null || request.getNewPass().length() < 6){
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+
+        }
+
+        if (!request.getNewPass().equals(request.getConfirmPass())){
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
         user.setPassword(passwordEncoder.encode(request.getNewPass()));
         userRepository.save(user);
     }

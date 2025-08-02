@@ -11,6 +11,7 @@ import java.util.UUID;
 @Service
 public interface OrderDetailService {
     List<OrderDetailResponse> findAll();
+    List<OrderDetailResponse> finAllByOrderId(UUID id);
     List<OrderDetailResponse> create(List<OrderDetailRequest> requestList, Orders orders);
     List<OrderDetailResponse> addOrUpdateOrderDetails(Orders orders, List<OrderDetailRequest> requestList);
 }

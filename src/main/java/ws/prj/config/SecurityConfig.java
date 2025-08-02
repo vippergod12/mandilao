@@ -56,6 +56,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET,"/category").permitAll()
                     .requestMatchers(HttpMethod.GET,"/images").permitAll()
                     .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                     .anyRequest().authenticated();
         });
 //        http.oauth2Login(login -> {
