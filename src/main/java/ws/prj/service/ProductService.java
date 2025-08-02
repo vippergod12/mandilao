@@ -18,5 +18,5 @@ public interface ProductService {
     ProductResponse update(UUID ID,ProductRequest request);
     void delete(UUID id);
 
-     Page<ProductResponse> findAll(Pageable pageable);
+     Page<ProductResponse> findAll(Pageable pageable, UUID categoryId);
 }

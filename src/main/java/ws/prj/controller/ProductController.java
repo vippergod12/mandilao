@@ -50,7 +50,8 @@ public class ProductController {
     public ApiResponse<Page<ProductResponse>> getAll(@RequestParam("page") int page,
                                                      @RequestParam("size") int size,
                                                      @RequestParam(name = "sortBy", defaultValue = "name") String sortBy,
-                                                     @RequestParam(name = "direction", defaultValue = "asc")String direction){
+                                                     @RequestParam(name = "direction", defaultValue = "asc")String direction,
+                                                     @RequestParam(name = "categoryId", required = false) UUID categoryId){
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
@@ -58,7 +59,7 @@ public class ProductController {
 
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        Page<ProductResponse> products = service.findAll(pageRequest);
+        Page<ProductResponse> products = service.findAll(pageRequest,categoryId);
 
 //        http://localhost:8080/identity/product?page=0&size=10&sortBy=name&direction=desc
 //        http://localhost:8080/identity/product?page=0&size=10&sortBy=price&direction=desc

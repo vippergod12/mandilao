@@ -182,8 +182,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> findAll(Pageable pageable) {
-        Page<Product> products = repo.findAll(pageable);
+    public Page<ProductResponse> findAll(Pageable pageable,UUID categoryId) {
+
+        Page<Product> products ;
+
+        if (categoryId != null) {
+            products = repo.findByCategoryId(categoryId, pageable);
+        }else{
+            products = repo.findAll(pageable);
+        }
 
         return products.map(mapper::toResponse);
     }
