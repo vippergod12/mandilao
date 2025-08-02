@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
 
     CategoryRepositoryDAO categoryRepo;
     @Autowired
-    private ProductRepositoryDAO productRepositoryDAO;
+    ProductRepositoryDAO productRepositoryDAO;
 
 //    @Override
 //    public List<ProductResponse> findAll() {

@@ -88,6 +88,37 @@ public class AuthenticationService {
         }
     }
 
+    public AuthenticationResponse authenticateAdmin(AuthenticationRequest request) throws JsonEOFException, ParseException {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
+        try {
+            var user = userRepository.findByUsername(request.getUsername())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+            boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
+            if (!authenticated) {
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
+            }
+
+            // ✅ Kiểm tra role có phải ADMIN hay không
+            boolean isAdmin = user.getRoles().stream()
+                    .anyMatch(role -> role.getName().equalsIgnoreCase("ADMIN"));
+            if (!isAdmin) {
+                throw new AppException(ErrorCode.UNAUTHORIZED); // Bạn có thể tạo thêm mã lỗi này
+            }
+
+            var token = generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(token.token)
+                    .authenticated(true)
+                    .build();
+
+        } catch (AppException e) {
+            throw e; // ❗ Đừng catch lại rồi quăng lỗi sai như bạn đang làm
+        }
+    }
+
+
     private TokenInfo generateToken(User user){
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
