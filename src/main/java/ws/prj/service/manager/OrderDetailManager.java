@@ -46,7 +46,7 @@ public class OrderDetailManager {
 
     public Product getProductOrThrow(UUID productId) {
         Product product = productRepositoryDAO.findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_KEY));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         return product;
     }
 

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import ws.prj.dto.request.OrderDetailRequest;
 import ws.prj.dto.request.OrderRequest;
 import ws.prj.dto.response.OrderDetailResponse;
 import ws.prj.dto.response.OrderReponse;
@@ -21,6 +22,7 @@ import ws.prj.service.OrderDetailService;
 import ws.prj.service.OrderService;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -48,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (request.getId_table() != null) {
             table = tableRepositoryDAO.findById(request.getId_table())
-                    .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
+                    .orElseThrow(() -> new AppException(ErrorCode.TABLE_NOT_EXISTED));
         } else {
             throw new AppException(ErrorCode.INVALID_KEY);
         }
@@ -103,6 +105,38 @@ public class OrderServiceImpl implements OrderService {
         String idUser = user.getId();
         List<Orders> ordersList = orderRepositoryDAO.findAllByUserId(idUser);
         return ordersList.stream().map(orderMapper :: toOrderResponse).toList();
+    }
+
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public OrderReponse findOrderByUserIdOrTableIdAndStatus(OrderRequest request) {
+        Orders orders;
+        if (request.getId_user() != null) {
+            orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(),"PENDING")
+                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        } else if (request.getId_table() != null) {
+            orders = orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(),"PENDING")
+                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        }else {
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
+        return orderMapper.toOrderResponse(orders);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public OrderReponse orderAgain(OrderRequest request){
+        if (request.getOrderDetaiList() == null || request.getOrderDetaiList().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
+        List<OrderDetailRequest> orderAgain = request.getOrderDetaiList().stream()
+                .map(req -> {
+                    req.setQuantity(1);
+                    return req;
+                })
+                .collect(Collectors.toList());
+        request.setOrderDetaiList(orderAgain);
+        return create(request);
     }
 
 

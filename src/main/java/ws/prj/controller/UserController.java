@@ -77,6 +77,20 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/order")
+    public ApiResponse<OrderReponse> getOrderByUserIdOrTableIdAndStatus(@RequestBody OrderRequest request){
+        return ApiResponse.<OrderReponse>builder()
+                .result(orderServiceImpl.findOrderByUserIdOrTableIdAndStatus(request))
+                .build();
+    }
+
+    @PostMapping("/order-again")
+    public ApiResponse<OrderReponse> orderAgain(@RequestBody OrderRequest request){
+        return ApiResponse.<OrderReponse>builder()
+                .result(orderServiceImpl.orderAgain(request))
+                .build();
+    }
+
 
 
 

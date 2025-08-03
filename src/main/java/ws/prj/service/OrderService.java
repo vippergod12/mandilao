@@ -13,4 +13,7 @@ public interface OrderService {
 //    void delete(OrderRequest request);
     List<OrderReponse> findAll();
     List<OrderReponse> findOrderByUserId(OrderRequest request);
+    OrderReponse findOrderByUserIdOrTableIdAndStatus(OrderRequest request);
+
+
 }
