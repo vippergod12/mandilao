@@ -117,17 +117,17 @@ public class UserServiceImpl implements UserService {
     public String confirmOtp (ConfirmOtpRequest request, HttpSession session){
         Object otpObj = session.getAttribute("otp");
         if (otpObj == null) {
-            return "OTP đã hết hạn hoặc không tồn tại !";
+            throw new AppException(ErrorCode.INVALID_KEY);
         }
 
         Long createdTime = (Long) session.getAttribute("otp_created_time");
         if (createdTime == null || System.currentTimeMillis() - createdTime > 60_000) {
-            return "OTP đã hết hạn!";
+            throw new AppException(ErrorCode.INVALID_KEY);
         }
         String otpStored = otpObj.toString();
 
         if(!otpStored.equals(request.getOtp())) {
-            return "Mã OTP không đúng!";
+            throw new AppException(ErrorCode.INVALID_KEY);
         }
 
         session.removeAttribute("otp");
