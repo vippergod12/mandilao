@@ -47,6 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse update(UUID id, CategoryRequest request) {
         Category existing = repo.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
         existing.setName(request.getName());
+        existing.setDescription(request.getDescription());
         return mapper.toResponse(repo.save(existing));
     }
 
