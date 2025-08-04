@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ws.prj.dto.request.OrderDetailRequest;
+import ws.prj.dto.request.OrderRequest;
 import ws.prj.dto.request.ProductRequest;
 import ws.prj.dto.response.OrderDetailResponse;
 import ws.prj.entity.OrderDetail;
@@ -45,8 +46,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public List<OrderDetailResponse> finAllByOrderId(UUID id) {
-        Orders orders = orderRepositoryDAO.findById(id)
+    public List<OrderDetailResponse> finAllByOrderId(OrderRequest request) {
+        Orders orders = orderRepositoryDAO.findById(request.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrders(orders);

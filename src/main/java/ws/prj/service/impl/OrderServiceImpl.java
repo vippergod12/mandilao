@@ -41,7 +41,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderReponse create(OrderRequest request) {
         User user = null;
-        Tables table = null;
+        Tables table;
 
         if (request.getId_user() != null) {
             user = userRepository.findById(request.getId_user())
