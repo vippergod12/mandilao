@@ -8,10 +8,11 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
-public class TableTypeResponse {
-    Long id;
+@Builder
+public class OrderDetailResponse {
+    UUID id;
     String name;
+    int quantity;
+    double price;
 }

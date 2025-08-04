@@ -2,17 +2,15 @@ package ws.prj.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.UUID;
+import ws.prj.entity.User;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TableRequest {
-    Long id;
-    String name;
-    String status;
-    Long tableTypeId;
+@Builder
+public class ChangePassRequest {
+    String password;
+    String newPass;
+    String confirmPass;
 }

@@ -1,18 +1,15 @@
 package ws.prj.dto.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TableRequest {
-    Long id;
-    String name;
-    String status;
-    Long tableTypeId;
+@Builder
+public class ForgotPassRequest {
+    String email;
 }

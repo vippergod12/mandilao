@@ -1,10 +1,12 @@
 package ws.prj.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -40,6 +42,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "roles_name")
     )
     Set<Role> roles;
+
+    @OneToOne(mappedBy = "user")
+    Orders orders;
+
 
     @Override
     public String toString() {
