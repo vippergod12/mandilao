@@ -78,8 +78,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderReponse update(OrderRequest request) {
         Orders orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(), "PENDING")
-                .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "PENDING"))
+                .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "OPEN"))
                 .orElse(null);
+
         if (orders == null) {return create(request);}
 
         orders.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
@@ -99,8 +100,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @PreAuthorize("hasRole('USER')")
-    public List<OrderReponse> findOrderByUserId(OrderRequest request) {
-        User user = userRepository.findById(request.getId_user())
+    public List<OrderReponse> findOrderByUserId(String userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         String idUser = user.getId();
         List<Orders> ordersList = orderRepositoryDAO.findAllByUserId(idUser);
@@ -109,14 +110,13 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    @PreAuthorize("hasRole('USER')")
-    public OrderReponse findOrderByUserIdOrTableIdAndStatus(OrderRequest request) {
+    public OrderReponse findOrderByUserIdOrTableIdAndStatus(String userId, Long tableId, String status) {
         Orders orders;
-        if (request.getId_user() != null) {
-            orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(),"PENDING")
+        if (userId != null) {
+            orders = orderRepositoryDAO.findByUserIdAndStatus(userId,status)
                     .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-        } else if (request.getId_table() != null) {
-            orders = orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(),"PENDING")
+        } else if (tableId != null) {
+            orders = orderRepositoryDAO.findByTablesIdAndStatus(tableId,status)
                     .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         }else {
             throw new AppException(ErrorCode.INVALID_KEY);
@@ -124,7 +124,6 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toOrderResponse(orders);
     }
 
-    @PreAuthorize("hasRole('USER')")
     public OrderReponse orderAgain(OrderRequest request){
         if (request.getOrderDetaiList() == null || request.getOrderDetaiList().isEmpty()) {
             throw new AppException(ErrorCode.INVALID_KEY);

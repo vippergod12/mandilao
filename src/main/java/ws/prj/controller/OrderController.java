@@ -13,9 +13,9 @@ import ws.prj.service.impl.OrderDetailServiceImpl;
 import ws.prj.service.impl.OrderServiceImpl;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @Slf4j
@@ -24,6 +24,13 @@ public class OrderController {
     OrderServiceImpl orderServiceImpl;
     OrderDetailServiceImpl orderDetailServiceImpl;
 
+    @GetMapping("/admin/orders")
+    public ApiResponse<List<OrderReponse>> getListOrder(){
+        return ApiResponse.<List<OrderReponse>>builder()
+                .result(orderServiceImpl.findAll())
+                .build();
+    }
+
     @PostMapping("/order/call")
     public ApiResponse<OrderReponse> callOrder(@RequestBody OrderRequest request) {
         return ApiResponse.<OrderReponse>builder()
@@ -31,31 +38,33 @@ public class OrderController {
                 .build();
     }
 
-    @GetMapping("/orders")
-    public ApiResponse<List<OrderReponse>> getOrdersByUser(@RequestBody OrderRequest request){
+    @GetMapping("/users/orders/{userId}")
+    public ApiResponse<List<OrderReponse>> getOrdersByUser(@PathVariable("userId") String userId){
         return ApiResponse.<List<OrderReponse>>builder()
-                .result(orderServiceImpl.findOrderByUserId(request))
+                .result(orderServiceImpl.findOrderByUserId(userId))
                 .build();
     }
 
-    @GetMapping("/order")
-    public ApiResponse<OrderReponse> getOrderByUserIdOrTableIdAndStatus(@RequestBody OrderRequest request){
+    @GetMapping("/order/find")
+    public ApiResponse<OrderReponse> findOrder( @RequestParam(required = false) String userId,
+            @RequestParam(required = false) Long tableId,@RequestParam String status) {
         return ApiResponse.<OrderReponse>builder()
-                .result(orderServiceImpl.findOrderByUserIdOrTableIdAndStatus(request))
+                .result(orderServiceImpl.findOrderByUserIdOrTableIdAndStatus(userId, tableId,status))
                 .build();
     }
 
-    @PostMapping("/order-again")
+
+    @PostMapping("/order/repeat")
     public ApiResponse<OrderReponse> orderAgain(@RequestBody OrderRequest request){
         return ApiResponse.<OrderReponse>builder()
                 .result(orderServiceImpl.orderAgain(request))
                 .build();
     }
 
-    @GetMapping("/orderDetail")
-    public ApiResponse<List<OrderDetailResponse>> getlistOrderDetail(@RequestBody OrderRequest request){
+    @GetMapping("/order/{orderId}/detail")
+    public ApiResponse<List<OrderDetailResponse>> getlistOrderDetail(@PathVariable("orderId") UUID orderId){
         return ApiResponse.<List<OrderDetailResponse>>builder()
-                .result(orderDetailServiceImpl.finAllByOrderId(request))
+                .result(orderDetailServiceImpl.finAllByOrderId(orderId))
                 .build();
     }
 }

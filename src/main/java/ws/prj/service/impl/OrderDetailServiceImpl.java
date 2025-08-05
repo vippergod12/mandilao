@@ -46,8 +46,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public List<OrderDetailResponse> finAllByOrderId(OrderRequest request) {
-        Orders orders = orderRepositoryDAO.findById(request.getId())
+    public List<OrderDetailResponse> finAllByOrderId(UUID orderId) {
+        Orders orders = orderRepositoryDAO.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrders(orders);

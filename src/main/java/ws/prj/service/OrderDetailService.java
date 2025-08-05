@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public interface OrderDetailService {
     List<OrderDetailResponse> findAll();
-    List<OrderDetailResponse> finAllByOrderId(OrderRequest request);
+    List<OrderDetailResponse> finAllByOrderId(UUID orderId);
     List<OrderDetailResponse> create(List<OrderDetailRequest> requestList, Orders orders);
     List<OrderDetailResponse> addOrUpdateOrderDetails(Orders orders, List<OrderDetailRequest> requestList);
 }

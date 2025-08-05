@@ -41,7 +41,7 @@ public class SecurityConfig {
 
 
 
-    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/auth/logout"};
+    private final String[] PUBLIC_ENPOINTS = { "/users","/auth/login","/auth/introspect","/auth/logout","/orders"};
 
 
     @Bean
@@ -57,6 +57,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET,"/images").permitAll()
                     .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                    .requestMatchers("/order/**").permitAll()
                     .anyRequest().authenticated();
         });
 //        http.oauth2Login(login -> {
