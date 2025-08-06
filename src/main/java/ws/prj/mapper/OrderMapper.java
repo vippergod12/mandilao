@@ -9,7 +9,7 @@ import ws.prj.entity.Orders;
 @Mapper(componentModel = "spring" ,uses = OrderDetailMapper.class)
 public interface OrderMapper {
     @Mapping(source = "id_table", target = "tables.id")
-    @Mapping(source = "id_user", target = "user.id")
+    @Mapping(target = "user", ignore = true)
     Orders toEntity(OrderRequest request);
 
     @Mapping(source = "orderDetails", target = "orderDetails")
