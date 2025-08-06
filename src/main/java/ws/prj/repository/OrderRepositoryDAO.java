@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface OrderRepositoryDAO extends JpaRepository<Orders, UUID> {
     Optional<Orders> findByUserIdAndStatus(String userId, String status);
     Optional<Orders> findByTablesIdAndStatus(Long tableId, String status);
-    List<Orders> findByUser_Id(String userId);
+    List<Orders> findAllByUserId(String userId);
 
 
 }

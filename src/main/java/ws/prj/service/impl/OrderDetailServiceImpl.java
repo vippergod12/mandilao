@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ws.prj.dto.request.OrderDetailRequest;
+import ws.prj.dto.request.OrderRequest;
 import ws.prj.dto.request.ProductRequest;
 import ws.prj.dto.response.OrderDetailResponse;
 import ws.prj.entity.OrderDetail;
@@ -18,14 +19,13 @@ import ws.prj.exception.AppException;
 import ws.prj.exception.ErrorCode;
 import ws.prj.mapper.OrderDetailMapper;
 import ws.prj.repository.OrderDetailRepository;
+import ws.prj.repository.OrderRepositoryDAO;
 import ws.prj.repository.ProductRepositoryDAO;
 import ws.prj.service.OrderDetailService;
 import ws.prj.service.ProductService;
+import ws.prj.service.manager.OrderDetailManager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,15 +34,31 @@ import java.util.stream.Collectors;
 public class OrderDetailServiceImpl implements OrderDetailService {
     private static final Logger log = LoggerFactory.getLogger(OrderDetailServiceImpl.class);
     OrderDetailRepository orderDetailRepository;
-    ProductRepositoryDAO productRepositoryDAO;
-    ProductService productService;
+    OrderRepositoryDAO orderRepositoryDAO;
+    OrderDetailManager orderDetailManager;
     OrderDetailMapper mapper;
 
     @Override
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("hasRole(ADMIN)")
     public List<OrderDetailResponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return orderDetailRepository.findAll().stream().map(mapper::toOrderDetailResponse).toList();
+    }
+
+    @Override
+    public List<OrderDetailResponse> finAllByOrderId(UUID orderId) {
+        Orders orders = orderRepositoryDAO.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrders(orders);
+
+        return orderDetails.stream().map(od -> OrderDetailResponse.builder()
+                        .id(od.getId())
+                        .quantity(od.getQuantity())
+                        .price(od.getPrice())
+                        .build()
+                ).collect(Collectors.toList());
+
     }
 
     @Override
@@ -50,68 +66,19 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         for (OrderDetailRequest req : requestList) {
-            Product product = productRepositoryDAO.findById(req.getId_product())
-                    .orElseThrow(() -> new AppException(ErrorCode.INVALID_KEY));
-
-            product.setQuantity(product.getQuantity() - req.getQuantity());
-            productRepositoryDAO.save(product);
-
-            OrderDetail detail = new OrderDetail();
-            detail.setId(UUID.randomUUID());
-            detail.setOrders(orders);
-            detail.setProduct(product);
-            detail.setQuantity(req.getQuantity());
-            detail.setPrice(product.getPrice());
-            orderDetails.add(detail);
+            Product product = orderDetailManager.getProductOrThrow(req.getId_product());
+            orderDetails.add(orderDetailManager.createNewDetail(orders,product,req.getQuantity()));
         }
 
         List<OrderDetail> savedDetails = orderDetailRepository.saveAll(orderDetails);
-        return savedDetails.stream()
-                .map(mapper::toOrderDetailResponse)
-                .collect(Collectors.toList());
+        List<OrderDetailResponse> responses = mapper.toOrderDetailResponseList(savedDetails);
+        return responses;
 
     }
 
     @Override
     public List<OrderDetailResponse> addOrUpdateOrderDetails(Orders orders, List<OrderDetailRequest> requestList) {
-        Map<UUID, OrderDetail> existingDetailsMap = orders.getOrderDetails().stream()
-                .collect(Collectors.toMap(d -> d.getProduct().getId(), d -> d));
-
-        for (OrderDetailRequest detailRequest : requestList) {
-            UUID productId = detailRequest.getId_product();
-            int quantity = detailRequest.getQuantity();
-            Product product = productRepositoryDAO.findById(productId)
-                    .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
-
-            if (product.getQuantity() < quantity) {
-                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-            }
-
-            product.setQuantity(product.getQuantity() - detailRequest.getQuantity());
-            productRepositoryDAO.save(product);
-
-            OrderDetail detail = existingDetailsMap.get(productId);
-            if (detail != null) {
-                detail.setQuantity(detail.getQuantity() + quantity);
-                detail.setPrice(detail.getQuantity() * detail.getProduct().getPrice());
-            } else {
-                OrderDetail newDetail = new OrderDetail();
-                newDetail.setId(UUID.randomUUID());
-                newDetail.setOrders(orders);
-                newDetail.setProduct(productRepositoryDAO.findById(productId)
-                        .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION)));
-                newDetail.setQuantity(quantity);
-                newDetail.setPrice(quantity * newDetail.getProduct().getPrice());
-
-                orders.getOrderDetails().add(newDetail);
-            }
-        }
-        return orders.getOrderDetails().stream()
-                .map(mapper::toOrderDetailResponse)
-                .collect(Collectors.toList());
+        return orderDetailManager.processOrderDetails(orders,requestList);
     }
-
-
-
 
 }

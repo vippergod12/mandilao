@@ -5,6 +5,8 @@ import ws.prj.dto.request.OrderRequest;
 import ws.prj.dto.response.OrderReponse;
 
 import java.util.List;
+import java.util.StringTokenizer;
+import java.util.UUID;
 
 @Service
 public interface OrderService {
@@ -12,5 +14,8 @@ public interface OrderService {
     OrderReponse update(OrderRequest request);
 //    void delete(OrderRequest request);
     List<OrderReponse> findAll();
-    List<OrderReponse> findOrderByUserId(OrderRequest request);
+    List<OrderReponse> findOrderByUserId(String userId);
+    OrderReponse findOrderByUserIdOrTableIdAndStatus(String userId, Long tableId, String status);
+
+
 }

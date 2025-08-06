@@ -1,9 +1,6 @@
 package ws.prj.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,14 +15,16 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDetail {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
+
     int quantity;
     double price;
     Date createdAt;
     @ManyToOne
     @JoinColumn(name = "id_order")
     Orders orders;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_product")
     Product product;
 }

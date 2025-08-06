@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import ws.prj.dto.request.OrderDetailRequest;
 import ws.prj.dto.request.OrderRequest;
 import ws.prj.dto.response.OrderDetailResponse;
 import ws.prj.dto.response.OrderReponse;
@@ -21,6 +22,7 @@ import ws.prj.service.OrderDetailService;
 import ws.prj.service.OrderService;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,11 +36,12 @@ public class OrderServiceImpl implements OrderService {
     OrderDetailService orderDetailService;
     OrderMapper orderMapper;
 
-    // e dung lam
+
+
     @Override
     public OrderReponse create(OrderRequest request) {
         User user = null;
-        Tables table = null;
+        Tables table;
 
         if (request.getId_user() != null) {
             user = userRepository.findById(request.getId_user())
@@ -47,18 +50,15 @@ public class OrderServiceImpl implements OrderService {
 
         if (request.getId_table() != null) {
             table = tableRepositoryDAO.findById(request.getId_table())
-                    .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
+                    .orElseThrow(() -> new AppException(ErrorCode.TABLE_NOT_EXISTED));
         } else {
             throw new AppException(ErrorCode.INVALID_KEY);
         }
 
         Orders orders = orderMapper.toEntity(request);
-        orders.setId(UUID.randomUUID());
         orders.setCreatedAt(new java.sql.Date(System.currentTimeMillis()));
         orders.setStatus("PENDING");
-        if (user != null) {
-            orders.setUser(user);
-        }
+        if (user != null) {orders.setUser(user);}
         orders.setTables(table);
 
         Orders saved = orderRepositoryDAO.save(orders);
@@ -66,42 +66,76 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetailResponse> detailResponses =
                 orderDetailService.create(request.getOrderDetaiList(),orders);
 
-        return orderMapper.toOrderResponse(saved);
+        return OrderReponse.builder()
+                .id(saved.getId())
+                .status(saved.getStatus())
+                .orderDetails(detailResponses)
+                .createdAt(saved.getCreatedAt())
+                .updatedAt(saved.getUpdatedAt())
+                .build();
     }
-    // e dung lam
+
     @Override
     public OrderReponse update(OrderRequest request) {
         Orders orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(), "PENDING")
-                .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "PENDING"))
+                .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "OPEN"))
                 .orElse(null);
 
-        if (orders == null) {
-            return create(request);
-        }
+        if (orders == null) {return create(request);}
 
         orders.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
-
         List<OrderDetailResponse> detailResponses =
                 orderDetailService.addOrUpdateOrderDetails(orders, request.getOrderDetaiList());
 
         Orders saved = orderRepositoryDAO.save(orders);
         return orderMapper.toOrderResponse(saved);
     }
-    // e dung lam
+
     @Override
-    @PreAuthorize("hasRole(ADMIN)")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OrderReponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return orderRepositoryDAO.findAll().stream().map(orderMapper::toOrderResponse).toList();
     }
 
     @Override
-    public List<OrderReponse> findOrderByUserId(OrderRequest request) {
-        User user = userRepository.findById(request.getId_user())
+    @PreAuthorize("hasRole('USER')")
+    public List<OrderReponse> findOrderByUserId(String userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         String idUser = user.getId();
-        List<Orders> ordersList = orderRepositoryDAO.findByUser_Id(idUser);
+        List<Orders> ordersList = orderRepositoryDAO.findAllByUserId(idUser);
         return ordersList.stream().map(orderMapper :: toOrderResponse).toList();
+    }
+
+
+    @Override
+    public OrderReponse findOrderByUserIdOrTableIdAndStatus(String userId, Long tableId, String status) {
+        Orders orders;
+        if (userId != null) {
+            orders = orderRepositoryDAO.findByUserIdAndStatus(userId,status)
+                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        } else if (tableId != null) {
+            orders = orderRepositoryDAO.findByTablesIdAndStatus(tableId,status)
+                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        }else {
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
+        return orderMapper.toOrderResponse(orders);
+    }
+
+    public OrderReponse orderAgain(OrderRequest request){
+        if (request.getOrderDetaiList() == null || request.getOrderDetaiList().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
+        List<OrderDetailRequest> orderAgain = request.getOrderDetaiList().stream()
+                .map(req -> {
+                    req.setQuantity(1);
+                    return req;
+                })
+                .collect(Collectors.toList());
+        request.setOrderDetaiList(orderAgain);
+        return create(request);
     }
 
 

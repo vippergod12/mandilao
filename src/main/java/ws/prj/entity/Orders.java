@@ -16,6 +16,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Orders {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
     Date createdAt;
     Date updatedAt;
