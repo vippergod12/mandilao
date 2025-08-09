@@ -67,4 +67,11 @@ public class OrderController {
                 .result(orderDetailServiceImpl.finAllByOrderId(orderId))
                 .build();
     }
+
+    @GetMapping("/order-detail/{orderId}")
+    public ApiResponse<List<OrderDetailResponse>> getOrderByUserId(@PathVariable("orderId") UUID orderId){
+        return ApiResponse.<List<OrderDetailResponse>>builder()
+                .result(orderDetailServiceImpl.finAllByOrderId(orderId))
+                .build();
+    }
 }
