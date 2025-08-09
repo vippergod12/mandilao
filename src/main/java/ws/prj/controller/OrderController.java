@@ -46,7 +46,7 @@ public class OrderController {
     }
 
     @GetMapping("/order/find")
-    public ApiResponse<OrderReponse> findOrder( @RequestParam(required = false) String userId,
+    public ApiResponse<OrderReponse> findOrder(@RequestParam(required = false) String userId,
             @RequestParam(required = false) Long tableId,@RequestParam String status) {
         return ApiResponse.<OrderReponse>builder()
                 .result(orderServiceImpl.findOrderByUserIdOrTableIdAndStatus(userId, tableId,status))
