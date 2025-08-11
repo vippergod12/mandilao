@@ -25,7 +25,7 @@ public class Orders {
     @JoinColumn(name = "id_table")
     Tables tables;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "id_user")
     User user;
 

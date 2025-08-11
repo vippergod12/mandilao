@@ -30,6 +30,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
     
     ProductService service;
