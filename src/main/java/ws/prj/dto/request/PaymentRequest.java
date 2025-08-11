@@ -1,9 +1,8 @@
-package ws.prj.dto.response;
+package ws.prj.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,13 +11,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-
-public class OrderReponse {
-    UUID id;
+public class PaymentRequest {
+    UUID id_order;
     String name_table;
-    String status;
-    List<OrderDetailResponse> orderDetails;
-    double totailPrice;
-    Date createdAt;
-    Date updatedAt;
+    String name_admin;
+    String name_user;
 }

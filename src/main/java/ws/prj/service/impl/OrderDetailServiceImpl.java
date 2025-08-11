@@ -54,6 +54,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
         return orderDetails.stream().map(od -> OrderDetailResponse.builder()
                         .id(od.getId())
+                        .name(od.getProduct().getName())
                         .quantity(od.getQuantity())
                         .price(od.getPrice())
                         .build()

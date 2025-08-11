@@ -56,10 +56,10 @@ public class SecurityConfig {
             config.requestMatchers(HttpMethod.POST,PUBLIC_ENPOINTS).permitAll()
                     .requestMatchers(HttpMethod.GET,"/users").hasAuthority("SCOPE_ADMIN")
                     .requestMatchers(HttpMethod.GET,"/product","/product/search").permitAll()
-                   
                     .requestMatchers(HttpMethod.GET,"/category").permitAll()
                     .requestMatchers(HttpMethod.GET,"/images").permitAll()
                     .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                    .requestMatchers("/order/**").permitAll()
                     .anyRequest().authenticated();
         });
 //        http.oauth2Login(login -> {

@@ -43,8 +43,11 @@ public class User {
     )
     Set<Role> roles;
 
-    @OneToOne(mappedBy = "user")
-    Orders orders;
+    @OneToMany(mappedBy = "user")
+    List<Orders> orders;
+
+    @OneToMany(mappedBy = "user")
+    List<Payment> payments;
 
 
     @Override

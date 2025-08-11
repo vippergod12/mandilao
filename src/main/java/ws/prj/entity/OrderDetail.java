@@ -21,6 +21,7 @@ public class OrderDetail {
     int quantity;
     double price;
     Date createdAt;
+
     @ManyToOne
     @JoinColumn(name = "id_order")
     Orders orders;

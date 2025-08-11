@@ -12,8 +12,8 @@ public interface OrderMapper {
     @Mapping(target = "user", ignore = true)
     Orders toEntity(OrderRequest request);
 
+    @Mapping(source = "tables.name", target = "name_table")
     @Mapping(source = "orderDetails", target = "orderDetails")
     OrderReponse toOrderResponse(Orders order);
-
 
 }
