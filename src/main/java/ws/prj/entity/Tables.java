@@ -28,5 +28,8 @@ public class Tables {
     @OneToMany(mappedBy = "tables")
     List<Orders> orders;
 
+    @OneToMany(mappedBy = "tables")
+    List<Payment> payment;
+
 }
 

@@ -60,17 +60,25 @@ public class OrderServiceImpl implements OrderService {
         orders.setStatus("PENDING");
         if (user != null) {orders.setUser(user);}
         orders.setTables(table);
-
         Orders saved = orderRepositoryDAO.save(orders);
 
         List<OrderDetailResponse> detailResponses =
                 orderDetailService.create(request.getOrderDetaiList(),orders);
 
+        double totalPrice = 0;
+        for (OrderDetailResponse d : detailResponses){
+            totalPrice += d.getPrice();
+        }
+
+        orders.setTotailPrice(totalPrice);
+        saved = orderRepositoryDAO.save(orders);
         return OrderReponse.builder()
                 .id(saved.getId())
+                .name_table(saved.getTables().getName())
                 .status(saved.getStatus())
                 .orderDetails(detailResponses)
                 .createdAt(saved.getCreatedAt())
+                .totailPrice(saved.getTotailPrice())
                 .updatedAt(saved.getUpdatedAt())
                 .build();
     }
@@ -78,15 +86,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderReponse update(OrderRequest request) {
         Orders orders = orderRepositoryDAO.findByUserIdAndStatus(request.getId_user(), "PENDING")
-                .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "OPEN"))
+                .or(() -> orderRepositoryDAO.findByTablesIdAndStatus(request.getId_table(), "PENDING"))
                 .orElse(null);
 
         if (orders == null) {return create(request);}
 
-        orders.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
         List<OrderDetailResponse> detailResponses =
                 orderDetailService.addOrUpdateOrderDetails(orders, request.getOrderDetaiList());
 
+        double totalPrice = 0;
+        for (OrderDetailResponse d : detailResponses){
+            totalPrice += d.getPrice();
+        }
+
+        orders.setTotailPrice(totalPrice);
+        orders.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
         Orders saved = orderRepositoryDAO.save(orders);
         return orderMapper.toOrderResponse(saved);
     }
