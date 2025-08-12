@@ -45,7 +45,9 @@ public class SecurityConfig {
             "/auth/login","/auth/introspect",
             "/auth/logout",
             "/auth/forgot-password",
-            "auth/verify-otp"};
+            "auth/verify-otp",
+            "/orders"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
