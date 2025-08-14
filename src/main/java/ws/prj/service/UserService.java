@@ -21,5 +21,6 @@ public interface UserService {
     void forgotPass(ForgotPassRequest request, HttpSession session);
     String confirmOtp (ConfirmOtpRequest request, HttpSession session);
     void changePass(ChangePassRequest body,String userId);
+    void changePassNew(ChangePassRequest request);
 
 }

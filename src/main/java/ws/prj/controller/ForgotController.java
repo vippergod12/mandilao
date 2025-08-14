@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ws.prj.dto.request.ApiResponse;
+import ws.prj.dto.request.ChangePassRequest;
 import ws.prj.dto.request.ConfirmOtpRequest;
 import ws.prj.dto.request.ForgotPassRequest;
 import ws.prj.service.UserService;
@@ -39,6 +40,15 @@ public class ForgotController {
         String result = userService.confirmOtp(request, session);
         return ApiResponse.<String>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/change-Pass-new")
+    @ResponseBody
+    public ApiResponse<Void> changePassnew(@RequestBody ChangePassRequest request) {
+       userService.changePassNew(request);
+        return ApiResponse.<Void>builder()
+                .message("Password changed successfully")
                 .build();
     }
 

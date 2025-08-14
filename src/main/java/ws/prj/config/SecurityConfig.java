@@ -46,6 +46,7 @@ public class SecurityConfig {
             "/auth/logout",
             "/auth/forgot-password",
             "auth/verify-otp",
+            "/auth/change-Pass-new",
             "/orders"
     };
 
