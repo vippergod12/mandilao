@@ -10,6 +10,7 @@ import ws.prj.entity.User;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class ChangePassRequest {
+    String email;
     String password;
     String newPass;
     String confirmPass;

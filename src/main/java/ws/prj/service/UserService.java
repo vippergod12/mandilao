@@ -10,6 +10,7 @@ import ws.prj.dto.response.UserResponse;
 import ws.prj.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -20,6 +21,7 @@ public interface UserService {
     boolean existsByUsername(String username);
     void forgotPass(ForgotPassRequest request, HttpSession session);
     String confirmOtp (ConfirmOtpRequest request, HttpSession session);
-    void changePass(ChangePassRequest body,String userId);
+    void changePass(ChangePassRequest body, String userId);
+    void changePassNew(ChangePassRequest request);
 
 }

@@ -30,7 +30,6 @@ import ws.prj.service.UserService;
 import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +44,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')") //Spring sẽ tạo ra 1 proxy trước cái hàm. sẽ ktra role là admin thì mơi gọi đến method
     public List<UserResponse> findAll() {
         log.info("Method findAll with role ADMIN");
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePass(ChangePassRequest request,String userId ) {
+    public void changePass(ChangePassRequest request, String userId ) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -153,6 +153,14 @@ public class UserServiceImpl implements UserService {
         if (!request.getNewPass().equals(request.getConfirmPass())){
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
+        user.setPassword(passwordEncoder.encode(request.getNewPass()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void changePassNew(ChangePassRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         user.setPassword(passwordEncoder.encode(request.getNewPass()));
         userRepository.save(user);
     }
